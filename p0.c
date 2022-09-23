@@ -1,3 +1,7 @@
+
+//Fernando Alvarez Legisima fernando.alvarezr@udc.es
+//Brais Sanchez Ferreiro brais.sferreiro@udc.es
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -183,7 +187,7 @@ int comando(char *tokens[], int tokenNum, tList *L) {
                 }
             } else {
 
-                printf("Comando de comando no encontrado\n");
+                printf("El comando nº %ld no existe en el historial\n",N);
 
             }
 
