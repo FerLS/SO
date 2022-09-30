@@ -10,6 +10,9 @@
 #include <time.h>
 #include "lista.h"
 #include <sys/utsname.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <sys/types.h>
 
 #define MAX_INPUT_SIZE 1024
 #define MAX_TOKENS 64
@@ -262,6 +265,24 @@ int ayuda(char *tokens[], int tokenNum, tList *L) {
     return 0;
 }
 
+int create(char *tokens[], int tokenNum, tList *L) {
+
+    if(tokenNum == 3 && strcmp(tokens[0], "-f") == 0){
+
+
+
+    }
+    else if(tokenNum == 2){
+
+        mkdir()
+
+    }else{
+
+        printf("Comando no encontrado\n");
+    }
+
+}
+
 struct cmd {
     char *cmd_name;
 
@@ -346,11 +367,6 @@ int main() {
 
 int delete_item(char *path){
 
-#include <sys/stat.h>
-
-#include <dirent.h>
-
-#include <sys/types.h>
 
     struct stat st;
     if( lstat(path,&st) == -1){
