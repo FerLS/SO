@@ -343,3 +343,59 @@ int main() {
 
 
 }
+
+int delete_item(char *path){
+
+#include <sys/stat.h>
+
+#include <dirent.h>
+
+#include <sys/types.h>
+
+    struct stat st;
+    if( lstat(path,&st) == -1){
+
+        printf("Could no acces %n", strerror((errno)));
+
+        return  0;
+    }
+    if((st.st_mode & S_IFMT) == S_IFDIR){ //ES UN DIRECTORIO
+        DIR *d;
+        struct dirent *ent;
+        if((d == opendir(path))){
+
+            printf("Could no open %n", strerror((errno)));
+            return  0;
+        }
+        while ((ent = readdir(d))!= NULL){
+
+            char new_path[MAX_PATH];
+
+            if(strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0){
+                continue;
+            }
+
+            sprintf(new_path,"%s%s",path,ent->d_name);
+            delete_item(delete_item(ent->d_name));
+        }
+        close(d);
+
+    }
+    /*
+    if(remove(path) == -1){
+        printf("Could no de lete %n", strerror((errno)));
+
+    }
+     */
+
+    printf("Borrar %s\n",path);
+}
+
+int delTree(int nargs,char *tokens[]){
+
+    for (int i = 1; i != NULL; ++i) {
+
+        delete_item(tokens[i]);
+
+    }
+}

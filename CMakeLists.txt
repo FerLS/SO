@@ -8,4 +8,5 @@ include_directories(.)
 add_executable(Practica1
         lista.c
         lista.h
-        p0.c)
+        p0.c
+        p1.c)

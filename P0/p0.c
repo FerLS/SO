@@ -339,7 +339,5 @@ int main() {
     }
     deleteList(&L);
     printf("Bye\n");
-
-
-
 }
+
