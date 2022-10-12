@@ -24,40 +24,48 @@ int process_input(char *tokens[], int tokenNum, tList *L);
 
 void UpdateList(char input[], tList *L);
 
-char LetraTF (mode_t m)
-{
-    switch (m&S_IFMT) { /*and bit a bit con los bits de formato,0170000 */
-        case S_IFSOCK: return 's'; /*socket */
-        case S_IFLNK: return 'l'; /*symbolic link*/
-        case S_IFREG: return '-'; /* fichero normal*/
-        case S_IFBLK: return 'b'; /*block device*/
-        case S_IFDIR: return 'd'; /*directorio */
-        case S_IFCHR: return 'c'; /*char device*/
-        case S_IFIFO: return 'p'; /*pipe*/
-        default: return '?'; /*desconocido, no deberia aparecer*/
+int delete_item(char *path,bool recursive);
+
+char LetraTF(mode_t m) {
+    switch (m & S_IFMT) { /*and bit a bit con los bits de formato,0170000 */
+        case S_IFSOCK:
+            return 's'; /*socket */
+        case S_IFLNK:
+            return 'l'; /*symbolic link*/
+        case S_IFREG:
+            return '-'; /* fichero normal*/
+        case S_IFBLK:
+            return 'b'; /*block device*/
+        case S_IFDIR:
+            return 'd'; /*directorio */
+        case S_IFCHR:
+            return 'c'; /*char device*/
+        case S_IFIFO:
+            return 'p'; /*pipe*/
+        default:
+            return '?'; /*desconocido, no deberia aparecer*/
     }
 }
 /*las siguientes funciones devuelven los permisos de un fichero en formato rwx----*/
 /*a partir del campo st_mode de la estructura stat */
 /*las tres son correctas pero usan distintas estrategias de asignación de memoria*/
 
-char * ConvierteModo (mode_t m, char *permisos)
-{
-    strcpy (permisos,"---------- ");
+char *ConvierteModo(mode_t m, char *permisos) {
+    strcpy(permisos, "---------- ");
 
-    permisos[0]=LetraTF(m);
-    if (m&S_IRUSR) permisos[1]='r';    /*propietario*/
-    if (m&S_IWUSR) permisos[2]='w';
-    if (m&S_IXUSR) permisos[3]='x';
-    if (m&S_IRGRP) permisos[4]='r';    /*grupo*/
-    if (m&S_IWGRP) permisos[5]='w';
-    if (m&S_IXGRP) permisos[6]='x';
-    if (m&S_IROTH) permisos[7]='r';    /*resto*/
-    if (m&S_IWOTH) permisos[8]='w';
-    if (m&S_IXOTH) permisos[9]='x';
-    if (m&S_ISUID) permisos[3]='s';    /*setuid, setgid y stickybit*/
-    if (m&S_ISGID) permisos[6]='s';
-    if (m&S_ISVTX) permisos[9]='t';
+    permisos[0] = LetraTF(m);
+    if (m & S_IRUSR) permisos[1] = 'r';    /*propietario*/
+    if (m & S_IWUSR) permisos[2] = 'w';
+    if (m & S_IXUSR) permisos[3] = 'x';
+    if (m & S_IRGRP) permisos[4] = 'r';    /*grupo*/
+    if (m & S_IWGRP) permisos[5] = 'w';
+    if (m & S_IXGRP) permisos[6] = 'x';
+    if (m & S_IROTH) permisos[7] = 'r';    /*resto*/
+    if (m & S_IWOTH) permisos[8] = 'w';
+    if (m & S_IXOTH) permisos[9] = 'x';
+    if (m & S_ISUID) permisos[3] = 's';    /*setuid, setgid y stickybit*/
+    if (m & S_ISGID) permisos[6] = 's';
+    if (m & S_ISVTX) permisos[9] = 't';
 
     return permisos;
 }
@@ -71,6 +79,57 @@ int split_string(char *cadena, char *trozos[]) {
     return i;
 
 }
+
+int delete_item(char *path,bool recursive) {
+
+
+    struct stat st;
+    if (lstat(path, &st) == -1) {
+
+        printf("No se pudo acceder a %s :  %s\n", path, strerror((errno)));
+
+        return 0;
+    }
+    if ((st.st_mode & S_IFMT) == S_IFDIR) { //ES UN DIRECTORIO
+        DIR *d;
+        struct dirent *ent;
+        if ((d = opendir(path)) == NULL) {
+
+            printf("No se pudo abrir %s :  %s \n", path, strerror((errno)));
+            return 0;
+        }
+
+        if(recursive){
+            while ((ent = readdir(d)) != NULL) {
+
+                char new_path[MAX_PATH];
+
+
+                if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
+                    continue;
+                }
+
+                sprintf(new_path, "%s/%s", path, ent->d_name);
+                delete_item(new_path,true);
+            }
+        }
+
+        closedir(d);
+
+    }
+
+    if (remove(path) == -1) {
+        printf("No se pudo borrar %s : %s\n", path, strerror((errno)));
+
+    }
+    else{
+        printf("Borrar %s\n", path);
+
+    }
+    return 0;
+
+}
+
 
 int autores(char *tokens[], int tokenNum, tList *L) {
 
@@ -156,6 +215,7 @@ int fecha(char *tokens[], int tokenNum, tList *L) {
 
 }
 
+
 int hist(char *tokens[], int tokenNum, tList *L) {
     int cont = 0;
     char *text;
@@ -229,7 +289,7 @@ int comando(char *tokens[], int tokenNum, tList *L) {
                 }
             } else {
 
-                printf("El comando nº %ld no existe en el historial\n",N);
+                printf("El comando nº %ld no existe en el historial\n", N);
 
             }
 
@@ -307,31 +367,64 @@ int ayuda(char *tokens[], int tokenNum, tList *L) {
 int create(char *tokens[], int tokenNum, tList *L) {
 
 
-    if(tokenNum == 3 && strcmp(tokens[0], "-f") == 0){
+    if (tokenNum == 3 && strcmp(tokens[0], "-f") == 0) {
 
-        int fd = open(tokens[1],O_CREAT,S_IWUSR | S_IRUSR);
-        if(fd < 0){
+        int fd = open(tokens[1], O_CREAT, S_IWUSR | S_IRUSR);
+        if (fd < 0) {
             printf("Error: %s\n", strerror(errno));
 
 
         }
         close(fd);
 
-    }
-    else if(tokenNum == 2){
+    } else if (tokenNum == 2) {
 
-        if (mkdir(tokens[0],S_IRWXU )<0){
+        if (mkdir(tokens[0], S_IRWXU) < 0) {
 
             printf("Error: %s\n", strerror(errno));
 
         }
 
-    }else{
+    } else {
 
         printf("Comando no encontrado\n");
     }
 
 }
+
+int deltree(char *tokens[], int tokenNum, tList *L) {
+
+    if (tokenNum >= 2) {
+
+        for (int i = 0; i < tokenNum - 1; ++i) {
+
+            delete_item(tokens[i],true);
+
+        }
+    } else {
+        printf("Comando no encontrado\n");
+    }
+
+
+}
+int delete(char *tokens[], int tokenNum, tList *L){
+
+    if (tokenNum >= 2) {
+
+        for (int i = 0; i < tokenNum - 1; ++i) {
+
+            delete_item(tokens[i],false);
+
+        }
+    } else {
+        printf("Comando no encontrado\n");
+    }
+}
+int stats(char *tokens[], int tokenNum, tList *L){
+
+
+}
+
 
 struct cmd {
     char *cmd_name;
@@ -346,7 +439,10 @@ struct cmd {
         {"comando", comando},
         {"infosis", infosis},
         {"ayuda",   ayuda},
-        {"create",   create},
+        {"create",  create},
+        {"deltree",  deltree},
+        {"delete",  delete},
+        {"stat",  stats},
         {NULL, NULL}
 };
 
@@ -413,57 +509,5 @@ int main() {
     printf("Bye\n");
 
 
-
 }
 
-int delete_item(char *path){
-
-
-    struct stat st;
-    if( lstat(path,&st) == -1){
-
-        printf("Could no acces %n", strerror((errno)));
-
-        return  0;
-    }
-    if((st.st_mode & S_IFMT) == S_IFDIR){ //ES UN DIRECTORIO
-        DIR *d;
-        struct dirent *ent;
-        if((d == opendir(path))){
-
-            printf("Could no open %n", strerror((errno)));
-            return  0;
-        }
-        while ((ent = readdir(d))!= NULL){
-
-            char new_path[MAX_PATH];
-
-
-            if(strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0){
-                continue;
-            }
-
-            sprintf(new_path,"%s%s",path,ent->d_name);
-            delete_item(delete_item(ent->d_name));
-        }
-        close(d);
-
-    }
-    /*
-    if(remove(path) == -1){
-        printf("Could no de lete %n", strerror((errno)));
-
-    }
-     */
-
-    printf("Borrar %s\n",path);
-}
-
-int delTree(int nargs,char *tokens[]){
-
-    for (int i = 1; i != NULL; ++i) {
-
-        delete_item(tokens[i]);
-
-    }
-}
