@@ -14,6 +14,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <pwd.h>
 
 #define MAX_INPUT_SIZE 1024
 #define MAX_TOKENS 64
@@ -24,7 +25,7 @@ int process_input(char *tokens[], int tokenNum, tList *L);
 
 void UpdateList(char input[], tList *L);
 
-int delete_item(char *path,bool recursive);
+int delete_item(char *path, bool recursive);
 
 char LetraTF(mode_t m) {
     switch (m & S_IFMT) { /*and bit a bit con los bits de formato,0170000 */
@@ -46,11 +47,9 @@ char LetraTF(mode_t m) {
             return '?'; /*desconocido, no deberia aparecer*/
     }
 }
-/*las siguientes funciones devuelven los permisos de un fichero en formato rwx----*/
-/*a partir del campo st_mode de la estructura stat */
-/*las tres son correctas pero usan distintas estrategias de asignación de memoria*/
 
-char *ConvierteModo(mode_t m, char *permisos) {
+char *ConvierteModo(mode_t m) {
+    static char permisos[12];
     strcpy(permisos, "---------- ");
 
     permisos[0] = LetraTF(m);
@@ -80,16 +79,27 @@ int split_string(char *cadena, char *trozos[]) {
 
 }
 
-int delete_item(char *path,bool recursive) {
 
+bool get_item(char *path, struct stat *st) {
 
-    struct stat st;
-    if (lstat(path, &st) == -1) {
+    if (lstat(path, st) == -1) {
 
         printf("No se pudo acceder a %s :  %s\n", path, strerror((errno)));
 
-        return 0;
+        return false;
     }
+
+
+    return true;
+}
+
+int delete_item(char *path, bool recursive) {
+
+
+    struct stat st;
+
+    if (!get_item(path, &st)) return 0;
+
     if ((st.st_mode & S_IFMT) == S_IFDIR) { //ES UN DIRECTORIO
         DIR *d;
         struct dirent *ent;
@@ -99,7 +109,7 @@ int delete_item(char *path,bool recursive) {
             return 0;
         }
 
-        if(recursive){
+        if (recursive) {
             while ((ent = readdir(d)) != NULL) {
 
                 char new_path[MAX_PATH];
@@ -110,7 +120,7 @@ int delete_item(char *path,bool recursive) {
                 }
 
                 sprintf(new_path, "%s/%s", path, ent->d_name);
-                delete_item(new_path,true);
+                delete_item(new_path, true);
             }
         }
 
@@ -121,12 +131,72 @@ int delete_item(char *path,bool recursive) {
     if (remove(path) == -1) {
         printf("No se pudo borrar %s : %s\n", path, strerror((errno)));
 
-    }
-    else{
+    } else {
         printf("Borrar %s\n", path);
 
     }
     return 0;
+
+}
+
+int list_item(char *path, bool lonng, bool acc, bool link, bool reca, bool recb, bool hid) {
+
+    struct stat st;
+
+    if (!get_item(path, &st)) return 0;
+
+    if ((st.st_mode & S_IFMT) == S_IFDIR) { //ES UN DIRECTORIO
+        DIR *d;
+        struct dirent *ent;
+        if ((d = opendir(path)) == NULL) {
+
+            printf("No se pudo abrir %s :  %s \n", path, strerror((errno)));
+            return 0;
+        }
+
+        while ((ent = readdir(d)) != NULL) {
+
+            char new_path[MAX_PATH];
+
+
+            if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
+                continue;
+            }
+
+            if(ent->d_name[0] == '.' && !hid)return 0;
+
+            sprintf(new_path, "%s/%s", path, ent->d_name);
+            list_item(new_path, lonng, acc, link, reca, recb, hid);
+        }
+
+        closedir(d);
+    }
+
+
+    struct tm *time;
+
+    if (lonng) {
+
+        time = localtime(&st.st_mtime);
+        printf("%d/%d/%d-%d:%d\t %lu(%ld)\t%s\t%s %s \t", time->tm_year + 1900, time->tm_mon, time->tm_mday,
+               time->tm_hour, time->tm_min,
+               st.st_nlink, st.st_ino, getpwuid(st.st_uid)->pw_name, getpwuid(st.st_gid)->pw_name,
+               ConvierteModo(st.st_mode));
+
+    }
+    if (acc) {
+
+        time = localtime(&st.st_atime);
+        printf("%d/%d/%d-%d:%d\t", time->tm_year + 1900, time->tm_mon, time->tm_mday, time->tm_hour, time->tm_min);
+    }
+    if (link) {
+
+        printf("No se que hacer aqui no explican nada");
+
+    }
+
+    printf("\t%ld  %s\n", st.st_size, path);
+
 
 }
 
@@ -398,7 +468,7 @@ int deltree(char *tokens[], int tokenNum, tList *L) {
 
         for (int i = 0; i < tokenNum - 1; ++i) {
 
-            delete_item(tokens[i],true);
+            delete_item(tokens[i], true);
 
         }
     } else {
@@ -407,24 +477,133 @@ int deltree(char *tokens[], int tokenNum, tList *L) {
 
 
 }
-int delete(char *tokens[], int tokenNum, tList *L){
+
+int delete(char *tokens[], int tokenNum, tList *L) {
 
     if (tokenNum >= 2) {
 
         for (int i = 0; i < tokenNum - 1; ++i) {
 
-            delete_item(tokens[i],false);
+            delete_item(tokens[i], false);
 
         }
     } else {
         printf("Comando no encontrado\n");
     }
 }
-int stats(char *tokens[], int tokenNum, tList *L){
+
+int stats(char *tokens[], int tokenNum, tList *L) {
+
+    struct stat st;
+    bool lonng = false, acc = false, link = false;
+    int counter = 0;
+
+
+    for (int i = 0; i < tokenNum - 1; ++i) {
+
+        if (strcmp(tokens[i], "-long") == 0) {
+            lonng = true;
+            counter++;
+        } else if (strcmp(tokens[i], "-acc") == 0) {
+            acc = true;
+            counter++;
+        } else if (strcmp(tokens[i], "-link") == 0) {
+            link = true;
+            counter++;
+
+        }
+
+    }
+    if (tokenNum == 1) {
+        printf("Comando no encontrado\n");
+        return 0;
+
+    }
+
+    for (int i = counter; i < tokenNum - 1; ++i) {
+
+
+        if (!get_item(tokens[i], &st)) return 0;
+
+        struct tm *time;
+
+        if (lonng) {
+
+            time = localtime(&st.st_mtime);
+            printf("%d/%d/%d-%d:%d\t %lu(%ld)\t%s\t%s %s \t", time->tm_year + 1900, time->tm_mon, time->tm_mday,
+                   time->tm_hour, time->tm_min,
+                   st.st_nlink, st.st_ino, getpwuid(st.st_uid)->pw_name, getpwuid(st.st_gid)->pw_name,
+                   ConvierteModo(st.st_mode));
+
+        }
+        if (acc) {
+
+            time = localtime(&st.st_atime);
+            printf("%d/%d/%d-%d:%d\t", time->tm_year + 1900, time->tm_mon, time->tm_mday, time->tm_hour, time->tm_min);
+        }
+        if (link) {
+
+            printf("No se que hacer aqui no explican nada");
+
+        }
+
+        printf("\t%ld  %s\n", st.st_size, tokens[i]);
+
+    }
 
 
 }
 
+int list(char *tokens[], int tokenNum, tList *L) {
+
+
+    int counter = 0;
+    bool lonng = false, acc = false, link = false, reca = false, recb = false, hid = false;
+
+    for (int i = 0; i < tokenNum - 1; ++i) {
+
+        if (strcmp(tokens[i], "-long") == 0) {
+            lonng = true;
+            counter++;
+        } else if (strcmp(tokens[i], "-acc") == 0) {
+            acc = true;
+            counter++;
+        } else if (strcmp(tokens[i], "-link") == 0) {
+            link = true;
+            counter++;
+
+        } else if (strcmp(tokens[i], "-reca") == 0) {
+
+            reca = true;
+            counter++;
+
+        } else if (strcmp(tokens[i], "-recb") == 0) {
+
+            recb = true;
+            counter++;
+
+        } else if (strcmp(tokens[i], "-hid") == 0) {
+
+            hid = true;
+            counter++;
+
+        }
+    }
+
+
+    if (tokenNum == 1) {
+        printf("Comando no encontrado\n");
+        return 0;
+    }
+
+    for (int i = counter; i < tokenNum - 1; ++i) {
+
+
+        list_item(tokens[i], lonng, acc, link, reca, recb, hid);
+
+
+    }
+}
 
 struct cmd {
     char *cmd_name;
@@ -440,9 +619,10 @@ struct cmd {
         {"infosis", infosis},
         {"ayuda",   ayuda},
         {"create",  create},
-        {"deltree",  deltree},
+        {"deltree", deltree},
         {"delete",  delete},
-        {"stat",  stats},
+        {"stat",    stats},
+        {"list",    list},
         {NULL, NULL}
 };
 
