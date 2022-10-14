@@ -92,6 +92,35 @@ bool get_item(char *path, struct stat *st) {
 
     return true;
 }
+int stat_item(char *path , struct stat *st, bool lonng, bool acc, bool link){
+
+    struct tm *time;
+
+    if (lonng) {
+
+        time = localtime(&st->st_mtime);
+        printf("%d/%d/%d-%d:%d\t %lu(%ld)\t%s\t%s %s \t", time->tm_year + 1900, time->tm_mon, time->tm_mday,
+               time->tm_hour, time->tm_min,
+               st->st_nlink, st->st_ino, getpwuid(st->st_uid)->pw_name, getpwuid(st->st_gid)->pw_name,
+               ConvierteModo(st->st_mode));
+
+    }
+    if (acc) {
+
+        time = localtime(&st->st_atime);
+        printf("%d/%d/%d-%d:%d\t", time->tm_year + 1900, time->tm_mon, time->tm_mday, time->tm_hour, time->tm_min);
+    }
+    if (link) {
+
+        printf("No se que hacer aqui no explican nada");
+
+    }
+
+    printf("\t%ld  %s\n", st->st_size, path);
+
+
+
+}
 
 int delete_item(char *path, bool recursive) {
 
@@ -145,6 +174,11 @@ int list_item(char *path, bool lonng, bool acc, bool link, bool reca, bool recb,
 
     if (!get_item(path, &st)) return 0;
 
+    if((reca && !recb)|| (!reca && !recb) || (recb && reca)){
+        stat_item(path, &st, lonng, acc, link);
+
+    }
+
     if ((st.st_mode & S_IFMT) == S_IFDIR) { //ES UN DIRECTORIO
         DIR *d;
         struct dirent *ent;
@@ -173,29 +207,13 @@ int list_item(char *path, bool lonng, bool acc, bool link, bool reca, bool recb,
     }
 
 
-    struct tm *time;
+    if((recb && !reca) ){
 
-    if (lonng) {
-
-        time = localtime(&st.st_mtime);
-        printf("%d/%d/%d-%d:%d\t %lu(%ld)\t%s\t%s %s \t", time->tm_year + 1900, time->tm_mon, time->tm_mday,
-               time->tm_hour, time->tm_min,
-               st.st_nlink, st.st_ino, getpwuid(st.st_uid)->pw_name, getpwuid(st.st_gid)->pw_name,
-               ConvierteModo(st.st_mode));
-
-    }
-    if (acc) {
-
-        time = localtime(&st.st_atime);
-        printf("%d/%d/%d-%d:%d\t", time->tm_year + 1900, time->tm_mon, time->tm_mday, time->tm_hour, time->tm_min);
-    }
-    if (link) {
-
-        printf("No se que hacer aqui no explican nada");
+        stat_item(path, &st, lonng, acc, link);
 
     }
 
-    printf("\t%ld  %s\n", st.st_size, path);
+
 
 
 }
@@ -532,30 +550,7 @@ int stats(char *tokens[], int tokenNum, tList *L) {
 
         if (!get_item(tokens[i], &st)) return 0;
 
-        struct tm *time;
-
-        if (lonng) {
-
-            time = localtime(&st.st_mtime);
-            printf("%d/%d/%d-%d:%d\t %lu(%ld)\t%s\t%s %s \t", time->tm_year + 1900, time->tm_mon, time->tm_mday,
-                   time->tm_hour, time->tm_min,
-                   st.st_nlink, st.st_ino, getpwuid(st.st_uid)->pw_name, getpwuid(st.st_gid)->pw_name,
-                   ConvierteModo(st.st_mode));
-
-        }
-        if (acc) {
-
-            time = localtime(&st.st_atime);
-            printf("%d/%d/%d-%d:%d\t", time->tm_year + 1900, time->tm_mon, time->tm_mday, time->tm_hour, time->tm_min);
-        }
-        if (link) {
-
-            printf("No se que hacer aqui no explican nada");
-
-        }
-
-        printf("\t%ld  %s\n", st.st_size, tokens[i]);
-
+        stat_item(tokens[i], &st, lonng, acc, link);
     }
 
 
