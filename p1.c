@@ -285,7 +285,6 @@ int fecha(char *tokens[], int tokenNum, tList *L) {
 
 }
 
-
 int hist(char *tokens[], int tokenNum, tList *L) {
     int cont = 0;
     char *text;
@@ -420,8 +419,16 @@ int ayuda(char *tokens[], int tokenNum, tList *L) {
                    " del proceso padre del shell.\n\n");
         } else if (strcmp(tokens[0], "fin") == 0 || strcmp(tokens[0], "bye") == 0 || strcmp(tokens[0], "salir") == 0) {
             printf("bye/salir/end Termina con la shell.\n");
-        } else {
-            printf("Comando no encontrado\n");
+        } else if(strcmp(tokens[0], "create") == 0) {
+            printf("creates files or directories");
+        } else if(strcmp(tokens[0],"stat")==0){
+            printf("gives information on files or directories");
+        }else if(strcmp(tokens[0],"list")==0){
+            printf("lists directories contents");
+        }else if(strcmp(tokens[0],"delete")==0){
+            printf("deletes files and/or empty directories");
+        }else if(strcmp(tokens[0],"deltree")==0){
+            printf("deletes files and/pr non empty directories recursively");
         }
     } else if (tokenNum == 1) {
         printf(
