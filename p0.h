@@ -5,7 +5,9 @@
 #ifndef PRACTICA1_P0_H
 #define PRACTICA1_P0_H
 
-#include <cabezeras.h>
+#include "headers.h"
+
+
 
 int autores(char *tokens[], int tokenNum, tList *L);
 

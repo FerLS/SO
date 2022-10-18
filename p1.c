@@ -46,17 +46,6 @@ char *ConvierteModo(mode_t m) {
     return permisos;
 }
 
-int split_string(char *cadena, char *trozos[]) {
-    int i = 1;
-    if ((trozos[0] = strtok(cadena, " \n\t")) == NULL)
-        return 0;
-    while ((trozos[i] = strtok(NULL, " \n\t")) != NULL)
-        i++;
-    return i;
-
-}
-
-
 bool get_item(char *path, struct stat *st) {
 
     if (lstat(path, st) == -1) {
@@ -96,6 +85,7 @@ int stat_item(char *path , struct stat *st, bool lonng, bool acc, bool link){
     printf("\t%ld  %s\n", st->st_size, path);
 
 
+    return 0;
 
 }
 
@@ -190,6 +180,7 @@ int list_item(char *path, bool lonng, bool acc, bool link, bool reca, bool recb,
 
     }
 
+    return 0;
 
 
 
@@ -248,6 +239,8 @@ int create(char *tokens[], int tokenNum, tList *L) {
 
         printf("Comando no encontrado\n");
     }
+    return 0;
+
 
 }
 
@@ -263,6 +256,7 @@ int deltree(char *tokens[], int tokenNum, tList *L) {
     } else {
         printf("Comando no encontrado\n");
     }
+    return 0;
 
 
 }
@@ -279,6 +273,8 @@ int delete(char *tokens[], int tokenNum, tList *L) {
     } else {
         printf("Comando no encontrado\n");
     }
+    return 0;
+
 }
 
 int stats(char *tokens[], int tokenNum, tList *L) {
@@ -316,6 +312,7 @@ int stats(char *tokens[], int tokenNum, tList *L) {
 
         stat_item(tokens[i], &st, lonng, acc, link);
     }
+    return 0;
 
 
 }
@@ -369,5 +366,7 @@ int list(char *tokens[], int tokenNum, tList *L) {
 
 
     }
+    return 0;
+
 }
 

@@ -1,6 +1,6 @@
 
-#ifndef LISTAS_LISTA_H
-#define LISTAS_LISTA_H
+#ifndef PRACTICA1_LISTA_H
+#define PRACTICA1_LISTA_H
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -54,4 +54,4 @@ void deleteAtPosition(tPosL p, tList *L);
 
 void deleteList(tList *L);
 
-#endif //LISTAS_LISTA_H
+#endif //PRACTICA1_LISTA_H

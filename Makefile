@@ -1,10 +1,5 @@
-all: shell
+EXECUTABLE=shell
+CFLAGS= -Wall -g
 
-list.o : lista.c lista.h
-	gcc -c lista.c
-shell.o: main.c lista.h
-	gcc -c p1.c
-shell: shell.o list.o
-	gcc -o shell p1.o lista.o
-clean:
-	rm -f p1.o lista.o shell
+shell.o: main.c
+	gcc $(CFLAGS) -o $(EXECUTABLE) headers.h lista.h lista.c p0.c p0.h p1.c p1.h main.c

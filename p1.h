@@ -4,9 +4,9 @@
 
 #ifndef PRACTICA1_P1_H
 #define PRACTICA1_P1_H
-#include <cabezeras.h>
+#include "headers.h"
+
 #define MAX_PATH 1000
-struct utsname unameData;
 
 char LetraTF(mode_t m);
 char *ConvierteModo(mode_t m) ;

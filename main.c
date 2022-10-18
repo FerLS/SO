@@ -2,12 +2,8 @@
 //Fernando Alvarez Legisima fernando.alvarezr@udc.es
 //Brais Sanchez Ferreiro brais.sferreiro@udc.es
 
-#include <cabezeras.h>
-#include <p0.h>
-#include <p1.h>
-
-#define MAX_INPUT_SIZE 1024
-#define MAX_TOKENS 64
+#include "p0.h"
+#include "p1.h"
 
 
 int split_string(char *cadena, char *trozos[]) {

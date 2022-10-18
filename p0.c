@@ -4,6 +4,8 @@
 
 
 #include "p0.h"
+struct utsname unameData;
+
 
 int autores(char *tokens[], int tokenNum, tList *L) {
 
