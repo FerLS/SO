@@ -79,17 +79,17 @@ int stat_item(char *path, struct stat *st, bool lonng, bool acc, bool link) {
         if (link) {
 
 
-            ssize_t buffSize,nbytes;
-            buffSize = st->st_size+1;
+            ssize_t buffSize, nbytes;
+            buffSize = st->st_size + 1;
             char *buf;
 
             buf = NULL;
             buf = malloc(buffSize);
 
             nbytes = readlink(path, buf, buffSize);
-            if (nbytes!= -1){
+            if (nbytes != -1) {
 
-                printf(" -> %s",buf);
+                printf(" -> %s", buf);
 
             }
             free(buf);
@@ -235,13 +235,12 @@ int create(char *tokens[], int tokenNum, tList *L) {
 
     if (tokenNum == 3 && strcmp(tokens[0], "-f") == 0) {
 
-        int fd = open(tokens[1], O_CREAT, S_IWUSR | S_IRUSR) < 0;
-        if (fd) {
+        int fd = open(tokens[1], O_CREAT, S_IWUSR | S_IRUSR);
+        if (fd < 0) {
             printf("Error: %s\n", strerror(errno));
 
 
-
-        }else{
+        } else {
             close(fd);
 
         }
