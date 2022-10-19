@@ -15,6 +15,7 @@ int split_string(char *cadena, char *trozos[]) {
     return i;
 
 }
+
 struct cmd {
     char *cmd_name;
 

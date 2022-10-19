@@ -4,6 +4,7 @@
 
 #include "p1.h"
 
+
 char LetraTF(mode_t m) {
     switch (m & S_IFMT) { /*and bit a bit con los bits de formato,0170000 */
         case S_IFSOCK:
@@ -59,11 +60,11 @@ bool get_item(char *path, struct stat *st) {
     return true;
 }
 
-int stat_item(char *path, struct stat *st, bool lonng, bool acc, bool link) {
+int stat_item(char *path, struct stat *st,struct statParms *stP) {
 
     struct tm *time;
 
-    if (lonng) {
+    if (stP->lonng) {
 
         time = localtime(&st->st_mtime);
         printf("%d/%d/%d-%d:%d\t %lu(%ld)\t%s\t%s %s \t", time->tm_year + 1900, time->tm_mon, time->tm_mday,
@@ -71,12 +72,12 @@ int stat_item(char *path, struct stat *st, bool lonng, bool acc, bool link) {
                st->st_nlink, st->st_ino, getpwuid(st->st_uid)->pw_name, getpwuid(st->st_gid)->pw_name,
                ConvierteModo(st->st_mode));
 
-        if (acc) {
+        if (stP->acc) {
 
             time = localtime(&st->st_atime);
             printf("%d/%d/%d-%d:%d\t", time->tm_year + 1900, time->tm_mon, time->tm_mday, time->tm_hour, time->tm_min);
         }
-        if (link) {
+        if (stP->link) {
 
 
             ssize_t buffSize, nbytes;
@@ -99,7 +100,6 @@ int stat_item(char *path, struct stat *st, bool lonng, bool acc, bool link) {
 
 
     printf("\t%ld  %s\n", st->st_size, path);
-
 
     return 0;
 
@@ -151,59 +151,104 @@ int delete_item(char *path, bool recursive) {
 
 }
 
-int list_item(char *path, bool lonng, bool acc, bool link, bool reca, bool recb, bool hid) {
+
+
+int list_item(char *path,struct statParms *stP) {
 
     struct stat st;
 
     if (!get_item(path, &st)) return 0;
 
-    if (reca || !recb) {
-        stat_item(path, &st, lonng, acc, link);
+    if(stP->recb && stP->reca) printf("No se puede iterar de dos maneras a la vez! \n");
 
-    }
 
     if ((st.st_mode & S_IFMT) == S_IFDIR) { //ES UN DIRECTORIO
+
         DIR *d;
         struct dirent *ent;
+
         if ((d = opendir(path)) == NULL) {
 
             printf("No se pudo abrir %s :  %s \n", path, strerror((errno)));
             return 0;
         }
 
-        if (!recb && !reca) {
+        if(!stP->recb){
+
+            printf("************%s\n",path);
 
             while ((ent = readdir(d)) != NULL) {
 
                 char new_path[MAX_PATH];
 
+                if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
+                    continue;
+                }
+                if (ent->d_name[0] == '.' && !stP->hid)continue;
+                sprintf(new_path, "%s/%s", path, ent->d_name);
+
+                get_item(new_path, &st);
+                stat_item(ent->d_name, &st, stP);
+
+            }
+            closedir(d);
+            d = opendir(path);        }
+
+        while ((ent = readdir(d)) != NULL) {
+
+            char new_path[MAX_PATH];
+
+            if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
+                continue;
+            }
+            if (ent->d_name[0] == '.' && !stP->hid)continue;
+            sprintf(new_path, "%s/%s", path, ent->d_name);
+
+
+            get_item(new_path, &st);
+            if(stP->reca || stP->recb) list_item(new_path, stP);
+
+        }
+
+        if(stP->recb){
+
+            printf("************%s\n",path);
+
+            closedir(d);
+            d = opendir(path);
+
+
+            while ((ent = readdir(d)) != NULL) {
+
+                char new_path[MAX_PATH];
 
                 if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
                     continue;
                 }
-
-                if (ent->d_name[0] == '.' && !hid)return 0;
-
+                if (ent->d_name[0] == '.' && !stP->hid)continue;
                 sprintf(new_path, "%s/%s", path, ent->d_name);
-                list_item(new_path, lonng, acc, link, reca, recb, hid);
+
+                get_item(new_path, &st);
+                stat_item(ent->d_name, &st, stP);
+
             }
+
+
+
         }
 
-
         closedir(d);
-    }
 
 
-    if (recb) {
-
-        stat_item(path, &st, lonng, acc, link);
 
     }
+
 
     return 0;
 
 
 }
+
 
 
 int carpeta(char *tokens[], int tokenNum, tList *L) {
@@ -299,20 +344,27 @@ int delete(char *tokens[], int tokenNum, tList *L) {
 int stats(char *tokens[], int tokenNum, tList *L) {
 
     struct stat st;
-    bool lonng = false, acc = false, link = false;
+    struct statParms stP;
     int counter = 0;
+
+    stP.link = false;
+    stP.lonng = false;
+    stP.acc = false;
+    stP.recb = false;
+    stP.reca = false;
+
 
 
     for (int i = 0; i < tokenNum - 1; ++i) {
 
         if (strcmp(tokens[i], "-long") == 0) {
-            lonng = true;
+            stP.lonng = true;
             counter++;
         } else if (strcmp(tokens[i], "-acc") == 0) {
-            acc = true;
+            stP.acc = true;
             counter++;
         } else if (strcmp(tokens[i], "-link") == 0) {
-            link = true;
+            stP.link = true;
             counter++;
 
         }
@@ -329,7 +381,7 @@ int stats(char *tokens[], int tokenNum, tList *L) {
 
         if (!get_item(tokens[i], &st)) return 0;
 
-        stat_item(tokens[i], &st, lonng, acc, link);
+        stat_item(tokens[i], &st, &stP);
     }
     return 0;
 
@@ -340,33 +392,38 @@ int list(char *tokens[], int tokenNum, tList *L) {
 
 
     int counter = 0;
-    bool lonng = false, acc = false, link = false, reca = false, recb = false, hid = false;
+    struct statParms stP;
+    stP.link = false;
+    stP.lonng = false;
+    stP.acc = false;
+    stP.recb = false;
+    stP.reca = false;
 
     for (int i = 0; i < tokenNum - 1; ++i) {
 
         if (strcmp(tokens[i], "-long") == 0) {
-            lonng = true;
+            stP.lonng = true;
             counter++;
         } else if (strcmp(tokens[i], "-acc") == 0) {
-            acc = true;
+            stP.acc = true;
             counter++;
         } else if (strcmp(tokens[i], "-link") == 0) {
-            link = true;
+            stP.link = true;
             counter++;
 
         } else if (strcmp(tokens[i], "-reca") == 0) {
 
-            reca = true;
+            stP.reca = true;
             counter++;
 
         } else if (strcmp(tokens[i], "-recb") == 0) {
 
-            recb = true;
+            stP.recb = true;
             counter++;
 
         } else if (strcmp(tokens[i], "-hid") == 0) {
 
-            hid = true;
+            stP.hid = true;
             counter++;
 
         }
@@ -381,7 +438,7 @@ int list(char *tokens[], int tokenNum, tList *L) {
     for (int i = counter; i < tokenNum - 1; ++i) {
 
 
-        list_item(tokens[i], lonng, acc, link, reca, recb, hid);
+        list_item(tokens[i], &stP);
 
 
     }

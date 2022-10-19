@@ -8,15 +8,30 @@
 
 #define MAX_PATH 1000
 
+
+struct statParms{
+
+    bool lonng;
+    bool link;
+    bool acc;
+
+    bool reca;
+    bool recb;
+    bool hid;
+
+};
+
+
+
 char LetraTF(mode_t m);
 char *ConvierteModo(mode_t m) ;
 
 bool get_item(char *path, struct stat *st) ;
-int stat_item(char *path , struct stat *st, bool lonng, bool acc, bool link);
+int stat_item(char *path , struct stat *st, struct  statParms *stP);
 
 int delete_item(char *path, bool recursive);
 
-int list_item(char *path, bool lonng, bool acc, bool link, bool reca, bool recb, bool hid) ;
+int list_item(char *path, struct statParms *stP) ;
 int carpeta(char *tokens[], int tokenNum, tList *L);
 int create(char *tokens[], int tokenNum, tList *L) ;
 
