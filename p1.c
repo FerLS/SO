@@ -58,7 +58,8 @@ bool get_item(char *path, struct stat *st) {
 
     return true;
 }
-int stat_item(char *path , struct stat *st, bool lonng, bool acc, bool link){
+
+int stat_item(char *path, struct stat *st, bool lonng, bool acc, bool link) {
 
     struct tm *time;
 
@@ -70,17 +71,32 @@ int stat_item(char *path , struct stat *st, bool lonng, bool acc, bool link){
                st->st_nlink, st->st_ino, getpwuid(st->st_uid)->pw_name, getpwuid(st->st_gid)->pw_name,
                ConvierteModo(st->st_mode));
 
-    }
-    if (acc) {
+        if (acc) {
 
-        time = localtime(&st->st_atime);
-        printf("%d/%d/%d-%d:%d\t", time->tm_year + 1900, time->tm_mon, time->tm_mday, time->tm_hour, time->tm_min);
-    }
-    if (link) {
+            time = localtime(&st->st_atime);
+            printf("%d/%d/%d-%d:%d\t", time->tm_year + 1900, time->tm_mon, time->tm_mday, time->tm_hour, time->tm_min);
+        }
+        if (link) {
 
-        printf("No se que hacer aqui no explican nada");
+
+            ssize_t buffSize,nbytes;
+            buffSize = st->st_size+1;
+            char *buf;
+
+            buf = NULL;
+            buf = malloc(buffSize);
+
+            nbytes = readlink(path, buf, buffSize);
+            if (nbytes!= -1){
+
+                printf(" -> %s",buf);
+
+            }
+            free(buf);
+        }
 
     }
+
 
     printf("\t%ld  %s\n", st->st_size, path);
 
@@ -141,7 +157,7 @@ int list_item(char *path, bool lonng, bool acc, bool link, bool reca, bool recb,
 
     if (!get_item(path, &st)) return 0;
 
-    if((reca && !recb)|| (!reca && !recb) || (recb && reca)){
+    if (reca || !recb) {
         stat_item(path, &st, lonng, acc, link);
 
     }
@@ -155,26 +171,30 @@ int list_item(char *path, bool lonng, bool acc, bool link, bool reca, bool recb,
             return 0;
         }
 
-        while ((ent = readdir(d)) != NULL) {
+        if (!recb && !reca) {
 
-            char new_path[MAX_PATH];
+            while ((ent = readdir(d)) != NULL) {
+
+                char new_path[MAX_PATH];
 
 
-            if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
-                continue;
+                if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
+                    continue;
+                }
+
+                if (ent->d_name[0] == '.' && !hid)return 0;
+
+                sprintf(new_path, "%s/%s", path, ent->d_name);
+                list_item(new_path, lonng, acc, link, reca, recb, hid);
             }
-
-            if(ent->d_name[0] == '.' && !hid)return 0;
-
-            sprintf(new_path, "%s/%s", path, ent->d_name);
-            list_item(new_path, lonng, acc, link, reca, recb, hid);
         }
+
 
         closedir(d);
     }
 
 
-    if((recb && !reca) ){
+    if (recb) {
 
         stat_item(path, &st, lonng, acc, link);
 
@@ -183,10 +203,7 @@ int list_item(char *path, bool lonng, bool acc, bool link, bool reca, bool recb,
     return 0;
 
 
-
 }
-
-
 
 
 int carpeta(char *tokens[], int tokenNum, tList *L) {
@@ -213,19 +230,22 @@ int carpeta(char *tokens[], int tokenNum, tList *L) {
 }
 
 
-
 int create(char *tokens[], int tokenNum, tList *L) {
 
 
     if (tokenNum == 3 && strcmp(tokens[0], "-f") == 0) {
 
-        int fd = open(tokens[1], O_CREAT, S_IWUSR | S_IRUSR);
-        if (fd < 0) {
+        int fd = open(tokens[1], O_CREAT, S_IWUSR | S_IRUSR) < 0;
+        if (fd) {
             printf("Error: %s\n", strerror(errno));
 
 
+
+        }else{
+            close(fd);
+
         }
-        close(fd);
+
 
     } else if (tokenNum == 2) {
 
