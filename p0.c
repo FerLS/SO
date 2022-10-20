@@ -29,7 +29,7 @@ int pid(char *tokens[], int tokenNum, tList *L) {
 
     if (tokenNum == 2 && strcmp(tokens[0], "-p") == 0) {
 
-        printf("%d\n", getpid()); //getppdid;
+        printf("%d\n", getppid()); 
 
     } else if (tokenNum == 1) {
         printf("%d\n", getpid());
@@ -162,14 +162,18 @@ int comando(char *tokens[], int tokenNum, tList *L) {
     return 0;
 }
 
-int infosis(char *tokens[], int tokenNum, tList *L) {
+iint infosis(char *tokens[], int tokenNum, tList *L) {
 
-    uname(&unameData);
-    printf("%s", unameData.sysname);
-    printf("\n%s", unameData.machine);
-    printf("\n%s", unameData.nodename);
-    printf("\n%s", unameData.release);
-    printf("\n%s\n", unameData.version);
+    if (tokenNum==1) {
+        uname(&unameData);
+        printf("%s", unameData.sysname);
+        printf("\n%s", unameData.machine);
+        printf("\n%s", unameData.nodename);
+        printf("\n%s", unameData.release);
+        printf("\n%s\n", unameData.version);
+    } else {
+        printf("Comando no encontrado\n");
+    }
     return 0;
 }
 
