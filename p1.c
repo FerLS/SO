@@ -301,7 +301,7 @@ int create(char *tokens[], int tokenNum, tList *L) {
 
     } else {
 
-        printf("Comando no encontrado\n");
+        printf("Escriba un nombre de la carpeta o un fichero.\n");
     }
     return 0;
 
@@ -318,7 +318,7 @@ int deltree(char *tokens[], int tokenNum, tList *L) {
 
         }
     } else {
-        printf("Comando no encontrado\n");
+        printf("Ponga algo que borrar.\n");
     }
     return 0;
 
@@ -335,7 +335,7 @@ int delete(char *tokens[], int tokenNum, tList *L) {
 
         }
     } else {
-        printf("Comando no encontrado\n");
+        printf("Ponga algo que borrar.\n");
     }
     return 0;
 
