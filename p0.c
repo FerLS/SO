@@ -162,7 +162,7 @@ int comando(char *tokens[], int tokenNum, tList *L) {
     return 0;
 }
 
-iint infosis(char *tokens[], int tokenNum, tList *L) {
+int infosis(char *tokens[], int tokenNum, tList *L) {
 
     if (tokenNum==1) {
         uname(&unameData);
@@ -208,7 +208,7 @@ int ayuda(char *tokens[], int tokenNum, tList *L) {
             printf("bye/salir/end Termina con la shell.\n");
         } else if (strcmp(tokens[0], "create") == 0) {
             printf("create [-f] [name]\tCrea un directorio o un fichero (-f)\n");
-        } else if (strcmp(tokens[0], "stat\n") == 0) {
+        } else if (strcmp(tokens[0], "stat") == 0) {
             printf("stat [-long][-link][-acc] name1 name2 ..\tlista ficheros;\n"
                    "\t\t-long: listado largo\n"
                    "\t\t-acc: acesstime\n"
@@ -220,14 +220,18 @@ int ayuda(char *tokens[], int tokenNum, tList *L) {
                    "\t\t-recb: recursivo (despues)\n"
                    "\t\tresto parametros como stat\n");
         } else if (strcmp(tokens[0], "delete") == 0) {
-            printf("delete [name1 name2 ..]\tBorra ficheros o directorios vacios\n");
+            printf("delete name1 name2 ..\tBorra ficheros o directorios vacios\n");
         } else if (strcmp(tokens[0], "deltree") == 0) {
-            printf("deltree [name1 name2 ..]\tBorra ficheros o directorios no vacios recursivamente\n");
+            printf("deltree name1 name2 ..\tBorra ficheros o directorios no vacios recursivamente\n");
+        }
+        else{
+            printf("Ese comando no existe\n");
+
         }
     } else if (tokenNum == 1) {
         printf(
                 "Lista de comandos:\n autores [-l|-n]\n fecha [-d|-h]\n carpeta [direct]\n"
-                " infosis\n comando N\n hist [-c|-N]\n pid [-p]\n fin\n bye\n salir\n create [-f] \n stat[-long][-link][-acc] archivo1 archivo2 ... \n list [-reca] [-recb] [-hid][-long][-link][-acc]\n delete [name1 name2 ..]\n deltree [name1 name2 ..]\n");
+                " infosis\n comando N\n hist [-c|-N]\n pid [-p]\n fin\n bye\n salir\n create [-f] \n stat[-long][-link][-acc] archivo1 archivo2 ... \n list [-reca] [-recb] [-hid][-long][-link][-acc]\n delete name1 name2 ..\n deltree name1 name2 ..\n");
     } else {
         printf("Comando no encontrado\n");
 

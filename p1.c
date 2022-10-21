@@ -60,7 +60,7 @@ bool get_item(char *path, struct stat *st) {
     return true;
 }
 
-int stat_item(char *path, struct stat *st,struct statParms *stP) {
+int stat_item(char *path, struct stat *st, struct statParms *stP) {
 
     struct tm *time;
 
@@ -90,8 +90,9 @@ int stat_item(char *path, struct stat *st,struct statParms *stP) {
             nbytes = readlink(path, buf, buffSize);
             if (nbytes != -1) {
 
-                printf(" -> %s", buf);
-
+                buf[st->st_size] = '\0';
+                printf("\t%ld  %s", st->st_size, path);
+                printf(" -> %s\n", buf);
             }
             free(buf);
         }
@@ -99,7 +100,7 @@ int stat_item(char *path, struct stat *st,struct statParms *stP) {
     }
 
 
-    printf("\t%ld  %s\n", st->st_size, path);
+    if(!stP->link) printf("\t%ld  %s\n", st->st_size, path);
 
     return 0;
 
@@ -152,14 +153,13 @@ int delete_item(char *path, bool recursive) {
 }
 
 
-
-int list_item(char *path,struct statParms *stP) {
+int list_item(char *path, struct statParms *stP) {
 
     struct stat st;
 
     if (!get_item(path, &st)) return 0;
 
-    if(stP->recb && stP->reca) printf("No se puede iterar de dos maneras a la vez! \n");
+    if (stP->recb && stP->reca) printf("No se puede iterar de dos maneras a la vez! \n");
 
 
     if ((st.st_mode & S_IFMT) == S_IFDIR) { //ES UN DIRECTORIO
@@ -173,9 +173,9 @@ int list_item(char *path,struct statParms *stP) {
             return 0;
         }
 
-        if(!stP->recb){
+        if (!stP->recb) {
 
-            printf("************%s\n",path);
+            printf("************%s\n", path);
 
             while ((ent = readdir(d)) != NULL) {
 
@@ -192,7 +192,8 @@ int list_item(char *path,struct statParms *stP) {
 
             }
             closedir(d);
-            d = opendir(path);        }
+            d = opendir(path);
+        }
 
         while ((ent = readdir(d)) != NULL) {
 
@@ -206,13 +207,13 @@ int list_item(char *path,struct statParms *stP) {
 
 
             get_item(new_path, &st);
-            if(stP->reca || stP->recb) list_item(new_path, stP);
+            if (stP->reca || stP->recb) list_item(new_path, stP);
 
         }
 
-        if(stP->recb){
+        if (stP->recb) {
 
-            printf("************%s\n",path);
+            printf("************%s\n", path);
 
             closedir(d);
             d = opendir(path);
@@ -234,11 +235,9 @@ int list_item(char *path,struct statParms *stP) {
             }
 
 
-
         }
 
         closedir(d);
-
 
 
     }
@@ -248,7 +247,6 @@ int list_item(char *path,struct statParms *stP) {
 
 
 }
-
 
 
 int carpeta(char *tokens[], int tokenNum, tList *L) {
@@ -293,7 +291,9 @@ int create(char *tokens[], int tokenNum, tList *L) {
 
     } else if (tokenNum == 2) {
 
-        if (mkdir(tokens[0], S_IRWXU) < 0) {
+        if (strcmp(tokens[0], "-f") == 0) {
+            printf("Escriba un nombre del fichero.\n");
+        } else if (mkdir(tokens[0], S_IRWXU) < 0) {
 
             printf("Error: %s\n", strerror(errno));
 
@@ -301,7 +301,7 @@ int create(char *tokens[], int tokenNum, tList *L) {
 
     } else {
 
-        printf("Escriba un nombre de la carpeta o un fichero.\n");
+        printf("Escriba un nombre de la carpeta\n");
     }
     return 0;
 
@@ -350,9 +350,9 @@ int stats(char *tokens[], int tokenNum, tList *L) {
     stP.link = false;
     stP.lonng = false;
     stP.acc = false;
+    stP.hid = false;
     stP.recb = false;
     stP.reca = false;
-
 
 
     for (int i = 0; i < tokenNum - 1; ++i) {
@@ -375,6 +375,11 @@ int stats(char *tokens[], int tokenNum, tList *L) {
         return 0;
 
     }
+    if (counter == tokenNum - 1) {
+
+        printf("Introduzca un nombre de fichero\n");
+        return 0;
+    }
 
     for (int i = counter; i < tokenNum - 1; ++i) {
 
@@ -396,6 +401,7 @@ int list(char *tokens[], int tokenNum, tList *L) {
     stP.link = false;
     stP.lonng = false;
     stP.acc = false;
+    stP.hid = false;
     stP.recb = false;
     stP.reca = false;
 
