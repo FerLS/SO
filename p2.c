@@ -266,8 +266,7 @@ ssize_t LeerFichero (char *f, void *p, size_t cont)
     return n;
 }
 
-void do_I_O_read (char *ar[])
-{
+void do_I_O_read (char *ar[]){
     void *p;
     size_t cont=-1;
     ssize_t n;

@@ -223,7 +223,29 @@ int ayuda(char *tokens[], int tokenNum, tList *L) {
             printf("delete name1 name2 ..\tBorra ficheros o directorios vacios\n");
         } else if (strcmp(tokens[0], "deltree") == 0) {
             printf("deltree name1 name2 ..\tBorra ficheros o directorios no vacios recursivamente\n");
+        }else if(strcmp(tokens[0],"allocate")==0){
+            printf("allocate [-malloc|-shared|-createshared|-mmap]... Asigna un bloque de memoria\n"
+                   "\t\t-malloc tam: asigna un bloque malloc de tamano tam\n"
+                   "\t\t-createshared cl tam: asigna (creando) el bloque de memoria compartida de clave cl y tamano tam\n"
+                   "\t\t-shared cl: asigna el bloque de memoria compartida (ya existente) de clave cl\n"
+                   "\t\t-mmap fich perm: mapea el fichero fich, perm son los permisos\n");
+        }else if(strcmp(tokens[0],"deallocate")==0){
+            printf("deallocate [-malloc|-shared|-delkey|-mmap|addr]..\tDesasigna un bloque de memoria\n"
+                   "\t\t-malloc tam: desasigna el bloque malloc de tamano tam\n"
+                   "\t\t-malloc tam: desasigna el bloque malloc de tamano tam\n"
+                   "\t\t-shared cl: desasigna (desmapea) el bloque de memoria compartida de clave cl\n"
+                   "\t\t-delkey cl: elimina del sistema (sin desmapear) la clave de memoria cl\n"
+                   "\t\t-mmap fich: desmapea el fichero mapeado fich\n"
+                   "\t\taddr: desasigna el bloque de memoria en la direccion addr\n");
+        }else if(strcmp(tokens[0],"i-o")==0){
+            printf("i-o [read|write] [-o] fiche addr cont\n"
+                   "\tread fich addr cont: Lee cont bytes desde fich a addr\n"
+                   "\twrite [-o] fich addr cont: Escribe cont bytes desde addr a fich. -o para sobreescribir\n"
+                   "\t\taddr es una direccion de memoria\n");
+        }else if(strcmp(tokens[0],"memdump")==0){
+            printf("memdump addr cont 	Vuelca en pantallas los contenidos (cont bytes) de la posicion de memoria addr");
         }
+
         else{
             printf("Ese comando no existe\n");
 
