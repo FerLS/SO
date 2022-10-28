@@ -99,7 +99,6 @@ int stat_item(char *path, struct stat *st, struct statParms *stP) {
 
     }
 
-
     if(!stP->link) printf("\t%ld  %s\n", st->st_size, path);
 
     return 0;
@@ -107,7 +106,6 @@ int stat_item(char *path, struct stat *st, struct statParms *stP) {
 }
 
 int delete_item(char *path, bool recursive) {
-
 
     struct stat st;
 
@@ -330,6 +328,7 @@ int delete(char *tokens[], int tokenNum, tList *L) {
     if (tokenNum >= 2) {
 
         for (int i = 0; i < tokenNum - 1; ++i) {
+
 
             delete_item(tokens[i], false);
 
