@@ -15,10 +15,13 @@
 #include <sys/utsname.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <sys/types.h>
 #include <fcntl.h>
+#include <sys/mman.h>
 #include <pwd.h>
+#include <sys/shm.h>
 #include "lista.h"
+#include <sys/types.h>
+#include <sys/wait.h>
 #endif //PRACTICA1_HEADERS_H
 
 #define MAX_INPUT_SIZE 1024

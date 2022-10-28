@@ -4,6 +4,7 @@
 
 #include "p0.h"
 #include "p1.h"
+#include "p2.h"
 
 
 int split_string(char *cadena, char *trozos[]) {
