@@ -59,9 +59,10 @@ int process_input(char *tokens[], int tokenNum, tList *L) {
 
 void UpdateList(char input[], tList *L) {
 
-    tItemL item;
-    strcpy(item.comando, input);
-    item.idCounter = isEmptyList(*L) ? 0 : getItem(last(*L), *L).idCounter + 1;
+    histData item = malloc(sizeof (struct struchistData));
+
+    strcpy(item->comando, input);
+    item->idCounter = isEmptyList(*L) ? 0 : ((histData)getItem(last(*L), *L))->idCounter + 1;
     if (!insertItem(item, NULL, L)) {
         printf("No se pudo pibe.");
     }

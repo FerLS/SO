@@ -54,7 +54,7 @@ tPosL last(tList L) {
 
 }
 
-tPosL findItem(tItemL d, tList L) {
+tPosL findItem(tItemL d, tList L, bool (*prop)(void *elem, void *), void *extra) {
 
     tPosL p;
     if (isEmptyList(L)) {
@@ -62,7 +62,7 @@ tPosL findItem(tItemL d, tList L) {
         p = LNULL;
     } else {
 
-        for (p = L; p != LNULL && p->data.idCounter != d.idCounter; p = p->next); //Esto esta mal ya que el identificador es igual, habria que inventarse in id
+        for (p = L; p != LNULL &&  !prop(p->data, extra); p = p->next); //Esto esta mal ya que el identificador es igual, habria que inventarse in id
     }
     return p;
 

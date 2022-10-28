@@ -8,12 +8,14 @@
 
 #define LNULL NULL
 
-struct datos{
+struct struchistData{
     char comando[20];
     int idCounter;
 };
 
-typedef struct datos tItemL;
+typedef struct struchistData *histData;
+
+typedef void *tItemL;
 typedef struct Node *tPosL;
 
 struct Node {

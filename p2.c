@@ -109,6 +109,17 @@ lo de siempre
 
 
 */
+struct meminfo {
+    int size;
+};
+
+bool comp_size(void *data, void *extra) {
+    struct meminfo*inf;
+    int *size=extra;
+    return inf->size == *size;
+}
+int size=1000;
+find(comp_size, &size);
 
 #define TAMANO 2048
 
