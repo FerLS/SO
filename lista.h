@@ -8,12 +8,24 @@
 
 #define LNULL NULL
 
+
+
+
 struct struchistData{
     char comando[20];
     int idCounter;
 };
+struct structMemData{
+
+    int nBytes;
+    void * direccion;
+    time_t time;
+    char *type;
+
+};
 
 typedef struct struchistData *histData;
+typedef struct structMemData *memData;
 
 typedef void *tItemL;
 typedef struct Node *tPosL;
@@ -28,6 +40,14 @@ struct Node {
 
 typedef tPosL tList;
 
+struct structListas{
+
+    tList listHist;
+    tList listMem;
+
+};
+
+typedef struct structListas *Listas;
 //Operaciones
 
 void createEmptyList(tList *L);
@@ -46,7 +66,7 @@ tPosL next(tPosL p, tList L);
 
 tPosL last(tList L);
 
-tPosL findItem(tItemL d, tList L);
+tPosL findItem(tItemL d, tList L, bool (*prop)(void *elem, void *), void *extra);
 
 bool insertItem(tItemL d, tPosL p, tList *L);
 

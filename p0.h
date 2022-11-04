@@ -9,18 +9,18 @@
 
 
 
-int autores(char *tokens[], int tokenNum, tList *L);
+int autores(char *tokens[], int tokenNum, Listas L);
 
-int pid(char *tokens[], int tokenNum, tList *L);
+int pid(char *tokens[], int tokenNum, Listas L);
 
-int fecha(char *tokens[], int tokenNum, tList *L);
+int fecha(char *tokens[], int tokenNum,Listas L);
 
-int hist(char *tokens[], int tokenNum, tList *L);
+int hist(char *tokens[], int tokenNum, Listas L);
 
-int comando(char *tokens[], int tokenNum, tList *L);
+int comando(char *tokens[], int tokenNum, Listas L);
 
-int infosis(char *tokens[], int tokenNum, tList *L);
+int infosis(char *tokens[], int tokenNum, Listas L);
 
-int ayuda(char *tokens[], int tokenNum, tList *L);
+int ayuda(char *tokens[], int tokenNum, Listas L);
 
 #endif //PRACTICA1_P0_H

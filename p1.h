@@ -32,14 +32,14 @@ int stat_item(char *path , struct stat *st, struct  statParms *stP);
 int delete_item(char *path, bool recursive);
 
 int list_item(char *path, struct statParms *stP) ;
-int carpeta(char *tokens[], int tokenNum, tList *L);
-int create(char *tokens[], int tokenNum, tList *L) ;
+int carpeta(char *tokens[], int tokenNum,Listas L);
+int create(char *tokens[], int tokenNum,Listas L) ;
 
-int deltree(char *tokens[], int tokenNum, tList *L);
+int deltree(char *tokens[], int tokenNum,Listas L);
 
-int delete(char *tokens[], int tokenNum, tList *L) ;
+int delete(char *tokens[], int tokenNum,Listas L) ;
 
-int stats(char *tokens[], int tokenNum, tList *L) ;
+int stats(char *tokens[], int tokenNum,Listas L) ;
 
-int list(char *tokens[], int tokenNum, tList *L);
+int list(char *tokens[], int tokenNum,Listas L);
 #endif //PRACTICA1_P1_H

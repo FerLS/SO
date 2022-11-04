@@ -7,6 +7,7 @@
 
 #include "headers.h"
 
+int allocate(char *tokens[], int tokenNum, Listas L);
 
 
 

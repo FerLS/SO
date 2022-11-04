@@ -30,6 +30,6 @@
 
 int split_string(char *cadena, char *trozos[]);
 
-int process_input(char *tokens[], int tokenNum, tList *L);
+int process_input(char *tokens[], int tokenNum, Listas L);
 
 void UpdateList(char input[], tList *L);

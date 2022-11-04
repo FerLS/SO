@@ -157,7 +157,7 @@ int list_item(char *path, struct statParms *stP) {
 
     if (!get_item(path, &st)) return 0;
 
-    if (stP->recb && stP->reca) printf("No se puede iterar de dos maneras a la vez! \n");
+    if (stP->recb && stP->reca){ printf("No se puede iterar de dos maneras a la vez! \n"); return 0;}
 
 
     if ((st.st_mode & S_IFMT) == S_IFDIR) { //ES UN DIRECTORIO
@@ -247,7 +247,7 @@ int list_item(char *path, struct statParms *stP) {
 }
 
 
-int carpeta(char *tokens[], int tokenNum, tList *L) {
+int carpeta(char *tokens[], int tokenNum,Listas L) {
 
     char path[100];
 
@@ -271,7 +271,7 @@ int carpeta(char *tokens[], int tokenNum, tList *L) {
 }
 
 
-int create(char *tokens[], int tokenNum, tList *L) {
+int create(char *tokens[], int tokenNum,Listas L) {
 
 
     if (tokenNum == 3 && strcmp(tokens[0], "-f") == 0) {
@@ -306,7 +306,7 @@ int create(char *tokens[], int tokenNum, tList *L) {
 
 }
 
-int deltree(char *tokens[], int tokenNum, tList *L) {
+int deltree(char *tokens[], int tokenNum, Listas L) {
 
     if (tokenNum >= 2) {
 
@@ -323,7 +323,7 @@ int deltree(char *tokens[], int tokenNum, tList *L) {
 
 }
 
-int delete(char *tokens[], int tokenNum, tList *L) {
+int delete(char *tokens[], int tokenNum, Listas L) {
 
     if (tokenNum >= 2) {
 
@@ -340,7 +340,7 @@ int delete(char *tokens[], int tokenNum, tList *L) {
 
 }
 
-int stats(char *tokens[], int tokenNum, tList *L) {
+int stats(char *tokens[], int tokenNum, Listas L) {
 
     struct stat st;
     struct statParms stP;
@@ -392,7 +392,7 @@ int stats(char *tokens[], int tokenNum, tList *L) {
 
 }
 
-int list(char *tokens[], int tokenNum, tList *L) {
+int list(char *tokens[], int tokenNum, Listas L) {
 
 
     int counter = 0;

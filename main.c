@@ -20,7 +20,7 @@ int split_string(char *cadena, char *trozos[]) {
 struct cmd {
     char *cmd_name;
 
-    int (*cmd_fun)(char *tokens[], int tokenNum, tList *L);
+    int (*cmd_fun)(char *tokens[], int tokenNum, Listas L);
 } cmds[] = {
         {"autores", autores},
         {"pid",     pid},
@@ -35,10 +35,11 @@ struct cmd {
         {"delete",  delete},
         {"stat",    stats},
         {"list",    list},
+        {"allocate",    allocate},
         {NULL, NULL}
 };
 
-int process_input(char *tokens[], int tokenNum, tList *L) {
+int process_input(char *tokens[], int tokenNum, Listas L) {
     int i;
 
     for (i = 0; cmds[i].cmd_name != NULL; i++) {
@@ -69,11 +70,19 @@ void UpdateList(char input[], tList *L) {
 }
 
 int main() {
+
     char input[MAX_INPUT_SIZE];
     char *tokens[MAX_TOKENS];
     int tokenNum = 0;
-    tList L;
-    createEmptyList(&L);
+    tList memList;
+    tList histList;
+    createEmptyList(&histList);
+    createEmptyList(&memList);
+
+    Listas listas = malloc(sizeof(struct structListas ));
+
+    listas->listHist = histList;
+    listas->listMem = memList;
 
     while (1) {
         printf("\033[1;33m");
@@ -82,12 +91,12 @@ int main() {
         fgets(input, MAX_INPUT_SIZE, stdin);
 
         if (input[0] != ' ' && input[0] != '\n') {
-            UpdateList(input, &L);
+            UpdateList(input, &listas->listHist);
 
             tokenNum = split_string(input, tokens);
 
             printf("\033[1;34m");
-            process_input(tokens, tokenNum, &L);
+            process_input(tokens, tokenNum, listas);
 
             if (strcmp(input, "salir") == 0 || strcmp(input, "bye") == 0 || strcmp(input, "fin") == 0) {
                 break;
@@ -98,8 +107,11 @@ int main() {
         }
 
     }
-    deleteList(&L);
+
+    deleteList(&listas->listHist);
+    free(listas);
     printf("Bye\n");
+
 
 
 }

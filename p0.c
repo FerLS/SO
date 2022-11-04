@@ -7,7 +7,7 @@
 struct utsname unameData;
 
 
-int autores(char *tokens[], int tokenNum, tList *L) {
+int autores(char *tokens[], int tokenNum, Listas L) {
 
     if (tokenNum == 2 && strcmp(tokens[0], "-l") == 0) {
         printf("brais.sferreiro@udc.es\n");
@@ -25,7 +25,7 @@ int autores(char *tokens[], int tokenNum, tList *L) {
     return 0;
 }
 
-int pid(char *tokens[], int tokenNum, tList *L) {
+int pid(char *tokens[], int tokenNum, Listas L) {
 
     if (tokenNum == 2 && strcmp(tokens[0], "-p") == 0) {
 
@@ -41,7 +41,7 @@ int pid(char *tokens[], int tokenNum, tList *L) {
 
 }
 
-int fecha(char *tokens[], int tokenNum, tList *L) {
+int fecha(char *tokens[], int tokenNum, Listas L) {
 
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
@@ -68,20 +68,20 @@ int fecha(char *tokens[], int tokenNum, tList *L) {
 
 }
 
-int hist(char *tokens[], int tokenNum, tList *L) {
+int hist(char *tokens[], int tokenNum, Listas L) {
     int cont = 0;
     char *text;
     if (tokenNum == 2 && strcmp(tokens[0], "-c") == 0) {
-        deleteList(L);
+        deleteList(&L->listHist);
     } else if (tokenNum == 2) {
 
         long N = strtol(tokens[0] + 1, &text, 10);
 
         if (tokens[0][0] == '-' && N > 0) {
 
-            for (tPosL p = first(*L); p != last(*L) && cont < N; p = next(p, *L)) {
+            for (tPosL p = first(L->listHist); p != last(L->listHist) && cont < N; p = next(p, L->listHist)) {
 
-                printf("%d -> %s", cont, getItem(p, *L).comando);
+                printf("%d -> %s", cont, ((histData)getItem(p, L->listHist))->comando);
                 cont++;
 
             }
@@ -94,9 +94,9 @@ int hist(char *tokens[], int tokenNum, tList *L) {
 
     } else if (tokenNum == 1) {
 
-        for (tPosL p = first(*L); p != last(*L); p = next(p, *L)) {
+        for (tPosL p = first(L->listHist); p != last(L->listHist); p = next(p, L->listHist)) {
 
-            printf("%d -> %s", getItem(p, *L).idCounter, getItem(p, *L).comando);
+            printf("%d -> %s", ((histData)getItem(p, L->listHist))->idCounter, ((histData) getItem(p, L->listHist))->comando);
 
         }
 
@@ -110,22 +110,22 @@ int hist(char *tokens[], int tokenNum, tList *L) {
     return 0;
 }
 
-int comando(char *tokens[], int tokenNum, tList *L) {
+int comando(char *tokens[], int tokenNum,Listas L) {
     char *text;
 
 
     if (tokenNum == 2) {
 
-        if (!isEmptyList(*L)) {
+        if (!isEmptyList(L->listHist)) {
             long N = strtol(tokens[0], &text, 10);
 
 
             tPosL p;
-            for (p = first(*L); p != last(*L) && getItem(p, *L).idCounter != N; p = next(p, *L));
+            for (p = first(L->listHist); p != last(L->listHist) && ((histData) getItem(p, L->listHist))->idCounter != N; p = next(p, L->listHist));
 
-            if (N == getItem(p, *L).idCounter) {
+            if (N == ((histData)getItem(p, L->listHist))->idCounter) {
                 char comando[20];
-                strcpy(comando, getItem(p, *L).comando);
+                strcpy(comando, ((histData)getItem(p, L->listHist))->comando);
                 split_string(comando, tokens);
 
                 if (strcmp(tokens[0], "comando") == 0) {
@@ -134,7 +134,7 @@ int comando(char *tokens[], int tokenNum, tList *L) {
 
                 } else {
                     char ch = '\n';
-                    UpdateList(strncat(comando, &ch, 1), L);
+                    UpdateList(strncat(comando, &ch, 1), &(L->listHist));
                     tokenNum = split_string(comando, tokens);
                     process_input(tokens, tokenNum, L);
 
@@ -162,7 +162,7 @@ int comando(char *tokens[], int tokenNum, tList *L) {
     return 0;
 }
 
-int infosis(char *tokens[], int tokenNum, tList *L) {
+int infosis(char *tokens[], int tokenNum, Listas L) {
 
     if (tokenNum==1) {
         uname(&unameData);
@@ -177,7 +177,7 @@ int infosis(char *tokens[], int tokenNum, tList *L) {
     return 0;
 }
 
-int ayuda(char *tokens[], int tokenNum, tList *L) {
+int ayuda(char *tokens[], int tokenNum, Listas L) {
 
     if (tokenNum == 2) {
 
