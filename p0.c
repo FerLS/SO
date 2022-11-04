@@ -243,7 +243,18 @@ int ayuda(char *tokens[], int tokenNum, Listas L) {
                    "\twrite [-o] fich addr cont: Escribe cont bytes desde addr a fich. -o para sobreescribir\n"
                    "\t\taddr es una direccion de memoria\n");
         }else if(strcmp(tokens[0],"memdump")==0){
-            printf("memdump addr cont 	Vuelca en pantallas los contenidos (cont bytes) de la posicion de memoria addr");
+            printf("memdump addr cont 	Vuelca en pantallas los contenidos (cont bytes) de la posicion de memoria addr\n");
+        }else if(strcmp(tokens[0],"memfill")==0){
+            printf("memfill addr cont byte \tLlena la memoria a partir de addr con byte\n");
+        }else if(strcmp(tokens[0],"memory")==0){
+            printf("memory [-blocks|-funcs|-vars|-all|-pmap] ..\tMuestra muestra detalles de la memoria del proceso\n"
+                   "\t\t-blocks: los bloques de memoria asignados\n"
+                   "\t\t-funcs: las direcciones de las funciones\n"
+                   "\t\t-vars: las direcciones de las variables\n"
+                   "\t\t-all: todo\n"
+                   "\t\t-pmap: muestra la salida del comando pmap(o similar)\n");
+        }else if(strcmp(tokens[0],"recurse")==0){
+            printf("recurse [n]\tInvoca a la funcion recursiva n veces\n");
         }
 
         else{
@@ -252,8 +263,12 @@ int ayuda(char *tokens[], int tokenNum, Listas L) {
         }
     } else if (tokenNum == 1) {
         printf(
-                "Lista de comandos:\n autores [-l|-n]\n fecha [-d|-h]\n carpeta [direct]\n"
-                " infosis\n comando N\n hist [-c|-N]\n pid [-p]\n fin\n bye\n salir\n create [-f] \n stat[-long][-link][-acc] archivo1 archivo2 ... \n list [-reca] [-recb] [-hid][-long][-link][-acc]\n delete name1 name2 ..\n deltree name1 name2 ..\n");
+                " Lista de comandos:\n autores [-l|-n]\n fecha [-d|-h]\n carpeta [direct]\n"
+                " infosis\n comando N\n hist [-c|-N]\n pid [-p]\n fin\n bye\n salir\n"
+                " create [-f] \n stat[-long][-link][-acc] archivo1 archivo2 ... \n list [-reca] [-recb] [-hid][-long][-link][-acc]\n "
+                "delete name1 name2 ..\n deltree name1 name2 ..\n"
+                " allocate [-malloc|-shared|-createshared|-mmap]\n deallocate [-malloc|-shared|-delkey|-mmap|addr]\n i-o [read|write] [-o]\n"
+                " memdump\n memfill\n memory\n recurse \n");
     } else {
         printf("Comando no encontrado\n");
 
