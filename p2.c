@@ -125,7 +125,30 @@ int size = 1000;
 //find(comp_size, &size);
 
 #define TAMANO 2048
+void printMemList(char *type, tList *L) {
 
+    memData data;
+    bool all = strcmp("all", type) == 0 ? true : false;
+    if (isEmptyList(*L)) printf("******No hay bloques asignados para el proceso %d\n", getpid());
+    else printf("******Lista de bloques asignados %s para el proceso %d\n", type, getpid());
+
+    tPosL p = first(*L);
+    for (int i = 0; i < sizeList(L); ++i) {
+
+        data = (memData) getItem(p, *L);
+
+        if (strcmp("malloc", data->type) == 0 || all) {
+
+            struct tm tm = *localtime(&data->time);
+            printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d   %s\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
+                   tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
+
+        }
+        p = next(p, *L);
+    }
+
+
+}
 void Recursiva(int n) {
     char automatico[TAMANO];
     static char estatico[TAMANO];
@@ -171,18 +194,18 @@ void *ObtenerMemoriaShmget(key_t clave, size_t tam) {
     return (p);
 }
 
-void do_AllocateCreateshared(char *tr[]) {
+void do_AllocateCreateshared(char *tokens[], tList *L) {
     key_t cl;
     size_t tam;
     void *p;
 
-    if (tr[0] == NULL || tr[1] == NULL) {
-        //ImprimirListaShared(&L);
+    if (tokens[1] == NULL || tokens[2] == NULL) {
+        printMemList("createshared",L);
         return;
     }
 
-    cl = (key_t) strtoul(tr[0], NULL, 10);
-    tam = (size_t) strtoul(tr[1], NULL, 10);
+    cl = (key_t) strtoul(tokens[1], NULL, 10);
+    tam = (size_t) strtoul(tokens[2], NULL, 10);
     if (tam == 0) {
         printf("No se asignan bloques de 0 bytes\n");
         return;
@@ -209,21 +232,21 @@ void *MapearFichero(char *fichero, int protection) {
     return p;
 }
 
-void do_AllocateMmap(char *arg[]) {
+void do_AllocateMmap(char *tokens[],tList *L) {
     char *perm;
     void *p;
     int protection = 0;
 
-    if (arg[0] == NULL) {/*ImprimirListaMmap(&L);*/ return; }
-    if ((perm = arg[1]) != NULL && strlen(perm) < 4) {
+    if (tokens[1] == NULL) { printMemList("mmap",L); return; }
+    if ((perm = tokens[2]) != NULL && strlen(perm) < 4) {
         if (strchr(perm, 'r') != NULL) protection |= PROT_READ;
         if (strchr(perm, 'w') != NULL) protection |= PROT_WRITE;
         if (strchr(perm, 'x') != NULL) protection |= PROT_EXEC;
     }
-    if ((p = MapearFichero(arg[0], protection)) == NULL)
+    if ((p = MapearFichero(tokens[1], protection)) == NULL)
         perror("Imposible mapear fichero");
     else
-        printf("fichero %s mapeado en %p\n", arg[0], p);
+        printf("fichero %s mapeado en %p\n", tokens[1], p);
 }
 
 void do_DeallocateDelkey(char *args[]) {
@@ -342,20 +365,24 @@ void Do_pmap(void) /*sin argumentos*/
 
 
 
+
 int allocate(char *tokens[], int tokenNum, Listas L) {
 
 
-    if (tokenNum == 1) {
+    if (tokenNum > 1) {
 
-
-    } else if (tokenNum > 1) {
-
-        memData data = NULL;
+        memData data = malloc(sizeof(struct structMemData));;
 
         if (strcmp(tokens[0], "-malloc") == 0) {
 
-            data= malloc(sizeof(struct structMemData));;
-            if(tokenNum == 3){
+
+            if (tokenNum == 3) {
+
+                if (atoi(tokens[1]) <= 0) {
+
+                    printf("Pon un numero mayor que 0\n");
+                    return 0;
+                }
 
                 data->time = time(NULL);
                 data->type = "malloc";
@@ -363,35 +390,39 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
                 data->direccion = malloc(data->nBytes);
                 printf("Asignados %d bytes en %p\n", data->nBytes, data->direccion);
 
-                insertItem(data,NULL,&L->listMem);
+                insertItem(data, NULL, &L->listMem);
 
 
-            }else{
+            } else {
 
-                printf("******Lista de bloques asignados malloc para el proceso %d\n",getpid());
-
-
-                for (tPosL p = first(L->listMem); p != last(L->listMem); p = next(p, L->listMem)) { //CUIDADO ESTO no recorre vaica
-
-                    data = (memData)getItem(p,L->listMem);
-                    if(strcmp("malloc",data->type) == 0){
-
-                        struct tm tm = *localtime(&data->time);
-                        printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d   malloc\n",data->direccion, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-
-                    }
-
-                }
+                printMemList("malloc", &L->listMem);
 
             }
 
 
+        }
+        else if(strcmp(tokens[0], "-createshared") == 0){
+            do_AllocateCreateshared(tokens,&L->listMem);
+
+        }
+        else if(strcmp(tokens[0], "-shared") == 0){
+
+
+        }
+        else if(strcmp(tokens[0], "-mmap") == 0){
+
+            do_AllocateMmap(tokens,&L->listMem);
 
         }
         else {
 
             printf("Parametro invalido\n");
         }
+
+    } else {
+
+        printMemList("all", &L->listMem);
+
 
     }
     return 0;

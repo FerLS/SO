@@ -76,4 +76,6 @@ void deleteAtPosition(tPosL p, tList *L);
 
 void deleteList(tList *L);
 
+int sizeList(tList *L);
+
 #endif //PRACTICA1_LISTA_H

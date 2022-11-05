@@ -139,3 +139,22 @@ void deleteList(tList *L) {
 
     }
 }
+
+int sizeList(tList *L){
+
+    int size = 0;
+    tPosL p;
+    if(!isEmptyList(*L)){
+        p = *L;
+        while (p != LNULL){
+
+            p = p->next;
+            size++;
+
+
+        }
+
+    }
+    return size;
+
+}
