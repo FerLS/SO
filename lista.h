@@ -21,6 +21,7 @@ struct structMemData{
     void * direccion;
     time_t time;
     char *type;
+    char* fichero;
 
 };
 

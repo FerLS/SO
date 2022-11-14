@@ -137,11 +137,20 @@ void printMemList(char *type, tList *L) {
 
         data = (memData) getItem(p, *L);
 
-        if (strcmp("malloc", data->type) == 0 || all) {
+        if (strcmp(type, data->type) == 0 || all) {
 
-            struct tm tm = *localtime(&data->time);
-            printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d   %s\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
-                   tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
+
+            if(strcmp(type,"malloc") == 0 || strcmp(type,"shared") == 0){
+                struct tm tm = *localtime(&data->time);
+                printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d   %s\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
+                       tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
+            }
+            if(strcmp(type,"mmap") == 0){
+                struct tm tm = *localtime(&data->time);
+                printf("%s\t\t%d-%02d-%02d %02d:%02d:%02d   %s\n", data->fichero, tm.tm_year + 1900, tm.tm_mon + 1,
+                       tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
+            }
+
 
         }
         p = next(p, *L);
@@ -200,7 +209,7 @@ void do_AllocateCreateshared(char *tokens[], tList *L) {
     void *p;
 
     if (tokens[1] == NULL || tokens[2] == NULL) {
-        printMemList("createshared",L);
+        printMemList("createshared", L);
         return;
     }
 
@@ -210,10 +219,21 @@ void do_AllocateCreateshared(char *tokens[], tList *L) {
         printf("No se asignan bloques de 0 bytes\n");
         return;
     }
-    if ((p = ObtenerMemoriaShmget(cl, tam)) != NULL)
+    if ((p = ObtenerMemoriaShmget(cl, tam)) != NULL){
         printf("Asignados %lu bytes en %p\n", (unsigned long) tam, p);
-    else
+        memData data = malloc(sizeof(struct structMemData));
+
+        data->direccion = p;
+        data->nBytes = atoi(tokens[2]);
+        data->type = "shared";
+
+        data->time = time(NULL);
+        insertItem(data, NULL, L);
+
+    }
+    else{
         printf("Imposible asignar memoria compartida clave %lu:%s\n", (unsigned long) cl, strerror(errno));
+    }
 }
 
 
@@ -245,8 +265,43 @@ void do_AllocateMmap(char *tokens[],tList *L) {
     }
     if ((p = MapearFichero(tokens[1], protection)) == NULL)
         perror("Imposible mapear fichero");
-    else
+    else{
+
         printf("fichero %s mapeado en %p\n", tokens[1], p);
+        memData data = malloc(sizeof(struct structMemData));
+
+        data->direccion = p;
+        data->type = "mmap";
+
+        data->fichero = tokens[1];
+        data->time = time(NULL);
+        insertItem(data, NULL, L);
+    }
+
+
+
+}
+void do_AllocateMalloc(char *tokens[],tList *L) {
+
+    if (atoi(tokens[1]) <= 0) {
+
+        printf("Pon un numero mayor que 0\n");
+        return ;
+    }else{
+
+        memData data = malloc(sizeof(struct structMemData));
+
+        data->direccion =malloc(atoi(tokens[1]));
+        data->fichero = tokens[1];
+        data->type = "malloc";
+        data->time = time(NULL);
+        insertItem(data, NULL, L);
+        printf("Asignados %d bytes en %p\n",data->nBytes , data->direccion);
+
+    }
+
+
+
 }
 
 void do_DeallocateDelkey(char *args[]) {
@@ -371,26 +426,13 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
 
     if (tokenNum > 1) {
 
-        memData data = malloc(sizeof(struct structMemData));;
 
         if (strcmp(tokens[0], "-malloc") == 0) {
 
 
             if (tokenNum == 3) {
 
-                if (atoi(tokens[1]) <= 0) {
-
-                    printf("Pon un numero mayor que 0\n");
-                    return 0;
-                }
-
-                data->time = time(NULL);
-                data->type = "malloc";
-                data->nBytes = atoi(tokens[1]);
-                data->direccion = malloc(data->nBytes);
-                printf("Asignados %d bytes en %p\n", data->nBytes, data->direccion);
-
-                insertItem(data, NULL, &L->listMem);
+                do_AllocateMalloc(tokens, &L->listMem);
 
 
             } else {
@@ -399,10 +441,15 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
 
             }
 
-
         }
         else if(strcmp(tokens[0], "-createshared") == 0){
-            do_AllocateCreateshared(tokens,&L->listMem);
+
+            if(tokenNum == 3){
+
+
+                do_AllocateCreateshared(tokens,&L->listMem);
+
+            }
 
         }
         else if(strcmp(tokens[0], "-shared") == 0){
@@ -411,7 +458,13 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
         }
         else if(strcmp(tokens[0], "-mmap") == 0){
 
-            do_AllocateMmap(tokens,&L->listMem);
+            if(tokenNum == 3){
+
+
+
+                do_AllocateMmap(tokens,&L->listMem);
+
+            }
 
         }
         else {
