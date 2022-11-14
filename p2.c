@@ -429,3 +429,56 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
 
 
 }
+
+void memdump(char *tokens[]){
+    void *p;
+
+    if(tokens[0]!=NULL){
+
+        p= (void *) strtoul(tokens[0],NULL,16);
+
+        if(tokens[2]==NULL){
+
+            for (int i = 0; i < 25; ++i) {
+                printf("%c ",*(char *)(p+1));
+            }
+            printf("\n");
+            for (int j = 0; j < 25; ++j) {
+                printf("%2x ",*(char *)(p+1));
+            }
+            printf("\n");
+        }else{
+            for (int i = 0; i < atoi(tokens[1]); ++i) {
+                printf("%c ",*(char *)(p+1));
+            }
+            printf("\n");
+            for (int j = 0; j < atoi(tokens[1]); ++j) {
+                printf("%2x ",*(char *)(p+1));
+            }
+            printf("\n");
+        }
+    }
+}
+
+void memfill(char *args[]){
+    int i;
+    void *p;
+
+    if (args[0] != NULL){
+
+        p = (void *)strtoull(args[0], NULL, 16);
+        if (args[1] == NULL){
+            for (i = 0; i < 128; i++)
+                (*(char *)(p + i)) = 65;
+            return;
+        }
+        if (args[2] == NULL){
+            for (i = 0; i < atoi(args[1]); i++)
+                (*(char *)(p + i)) = 65;
+            return;
+        }
+        for (i = 0; i < atoi(args[1]); i++) {
+            (*(char *) (p + i)) = args[2][0];
+        }
+    }
+}

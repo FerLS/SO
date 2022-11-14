@@ -4,7 +4,6 @@
 
 #include "p1.h"
 
-
 char LetraTF(mode_t m) {
     switch (m & S_IFMT) { /*and bit a bit con los bits de formato,0170000 */
         case S_IFSOCK:
@@ -296,9 +295,7 @@ int create(char *tokens[], int tokenNum,Listas L) {
             printf("Error: %s\n", strerror(errno));
 
         }
-
     } else {
-
         printf("Escriba un nombre de la carpeta\n");
     }
     return 0;
@@ -311,9 +308,7 @@ int deltree(char *tokens[], int tokenNum, Listas L) {
     if (tokenNum >= 2) {
 
         for (int i = 0; i < tokenNum - 1; ++i) {
-
             delete_item(tokens[i], true);
-
         }
     } else {
         printf("Ponga algo que borrar.\n");
@@ -328,10 +323,7 @@ int delete(char *tokens[], int tokenNum, Listas L) {
     if (tokenNum >= 2) {
 
         for (int i = 0; i < tokenNum - 1; ++i) {
-
-
             delete_item(tokens[i], false);
-
         }
     } else {
         printf("Ponga algo que borrar.\n");
@@ -415,22 +407,18 @@ int list(char *tokens[], int tokenNum, Listas L) {
         } else if (strcmp(tokens[i], "-link") == 0) {
             stP.link = true;
             counter++;
-
         } else if (strcmp(tokens[i], "-reca") == 0) {
 
             stP.reca = true;
             counter++;
-
         } else if (strcmp(tokens[i], "-recb") == 0) {
 
             stP.recb = true;
             counter++;
-
         } else if (strcmp(tokens[i], "-hid") == 0) {
 
             stP.hid = true;
             counter++;
-
         }
     }
 
@@ -441,11 +429,7 @@ int list(char *tokens[], int tokenNum, Listas L) {
     }
 
     for (int i = counter; i < tokenNum - 1; ++i) {
-
-
         list_item(tokens[i], &stP);
-
-
     }
     return 0;
 
