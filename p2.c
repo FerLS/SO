@@ -249,10 +249,10 @@ void do_AllocateMmap(char *tokens[],tList *L) {
         printf("fichero %s mapeado en %p\n", tokens[1], p);
 }
 
-void do_DeallocateDelkey(char *args[]) {
+void do_DeallocateDelkey(char *tokens[]) {
     key_t clave;
     int id;
-    char *key = args[0];
+    char *key = tokens[0];
 
     if (key == NULL || (clave = (key_t) strtoul(key, NULL, 10)) == IPC_PRIVATE) {
         printf("      delkey necesita clave_valida\n");
@@ -460,25 +460,25 @@ void memdump(char *tokens[]){
     }
 }
 
-void memfill(char *args[]){
+void memfill(char *tokens[]){
     int i;
     void *p;
 
-    if (args[0] != NULL){
+    if (tokens[0] != NULL){
 
-        p = (void *)strtoull(args[0], NULL, 16);
-        if (args[1] == NULL){
+        p = (void *)strtoull(tokens[0], NULL, 16);
+        if (tokens[1] == NULL){
             for (i = 0; i < 128; i++)
                 (*(char *)(p + i)) = 65;
             return;
         }
-        if (args[2] == NULL){
-            for (i = 0; i < atoi(args[1]); i++)
+        if (tokens[2] == NULL){
+            for (i = 0; i < atoi(tokens[1]); i++)
                 (*(char *)(p + i)) = 65;
             return;
         }
-        for (i = 0; i < atoi(args[1]); i++) {
-            (*(char *) (p + i)) = args[2][0];
+        for (i = 0; i < atoi(tokens[1]); i++) {
+            (*(char *) (p + i)) = tokens[2][0];
         }
     }
 }
