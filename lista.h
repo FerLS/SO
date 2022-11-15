@@ -22,6 +22,7 @@ struct structMemData{
     time_t time;
     char *type;
     char* fichero;
+    key_t key;
 
 };
 
@@ -67,7 +68,7 @@ tPosL next(tPosL p, tList L);
 
 tPosL last(tList L);
 
-tPosL findItem(tItemL d, tList L, bool (*prop)(void *elem, void *), void *extra);
+tPosL findItem(tList L, bool (*prop)(void *elem, void *), void *extra);
 
 bool insertItem(tItemL d, tPosL p, tList *L);
 

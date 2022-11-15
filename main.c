@@ -81,7 +81,7 @@ int main() {
     createEmptyList(&histList);
     createEmptyList(&memList);
 
-    Listas listas = malloc(sizeof(struct structListas ));
+    Listas listas = malloc(sizeof(struct structListas));
 
     listas->listHist = histList;
     listas->listMem = memList;

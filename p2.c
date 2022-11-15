@@ -122,10 +122,17 @@ bool comp_size(void *data, void *extra) {
     return inf->size == *size;
 }
 
+bool comp_key(void *data, void *extra) {
+    memData inf = data;
+    key_t *key = extra;
+    return inf->key == *key;
+}
+
 int size = 1000;
 //find(comp_size, &size);
 
 #define TAMANO 2048
+
 void printMemList(char *type, tList *L) {
 
     memData data;
@@ -141,15 +148,20 @@ void printMemList(char *type, tList *L) {
         if (strcmp(type, data->type) == 0 || all) {
 
 
-            if(strcmp(type,"malloc") == 0 || strcmp(type,"shared") == 0){
+            if (strcmp( data->type, "malloc") == 0) {
                 struct tm tm = *localtime(&data->time);
                 printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d   %s\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
                        tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
             }
-            if(strcmp(type,"mmap") == 0){
+            else if (strcmp( data->type, "mmap") == 0) {
                 struct tm tm = *localtime(&data->time);
                 printf("%s\t\t%d-%02d-%02d %02d:%02d:%02d   %s\n", data->fichero, tm.tm_year + 1900, tm.tm_mon + 1,
                        tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
+            }
+            else if(strcmp( data->type, "shared") == 0){
+                struct tm tm = *localtime(&data->time);
+                printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d %d %s\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
+                       tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,data->key, data->type);
             }
 
 
@@ -159,6 +171,7 @@ void printMemList(char *type, tList *L) {
 
 
 }
+
 void Recursiva(int n) {
     char automatico[TAMANO];
     static char estatico[TAMANO];
@@ -210,7 +223,7 @@ void do_AllocateCreateshared(char *tokens[], tList *L) {
     void *p;
 
     if (tokens[1] == NULL || tokens[2] == NULL) {
-        printMemList("createshared", L);
+        printMemList("shared", L);
         return;
     }
 
@@ -220,23 +233,58 @@ void do_AllocateCreateshared(char *tokens[], tList *L) {
         printf("No se asignan bloques de 0 bytes\n");
         return;
     }
-    if ((p = ObtenerMemoriaShmget(cl, tam)) != NULL){
-        printf("Asignados %lu bytes en %p\n", (unsigned long) tam, p);
+    if ((p = ObtenerMemoriaShmget(cl, tam)) != NULL) {
+        printf("Asignados %s bytes en %p\n", tokens[2], p);
+
+
         memData data = malloc(sizeof(struct structMemData));
 
         data->direccion = p;
+        data->key = cl;
         data->nBytes = atoi(tokens[2]);
         data->type = "shared";
 
         data->time = time(NULL);
         insertItem(data, NULL, L);
 
-    }
-    else{
+    } else {
         printf("Imposible asignar memoria compartida clave %lu:%s\n", (unsigned long) cl, strerror(errno));
     }
 }
 
+void do_AllocateShared(char *tokens[], tList *L) {
+
+    if (tokens[1] == NULL) {
+        printMemList("shared", L);
+        return;
+    }
+    key_t cl = (key_t) strtoul(tokens[1], NULL, 10);
+
+    tPosL p;
+
+    p = findItem(*L, comp_key, &cl);
+    if (p != NULL) {    //DEBERIA BUSCAR TAMMBIEN CREADOS EXTERNAMENTE???
+
+        memData data = malloc(sizeof(struct structMemData));
+        memData sh = (memData) getItem(p,*L);
+
+        printf("Memoria compartida de clave %d  en %p\n",cl,sh->direccion);
+
+        data->direccion = sh->direccion;
+        data->nBytes = sh->nBytes;
+        data->type = "shared";
+
+        data->time = time(NULL);
+        insertItem(data, NULL, L);
+
+
+    }
+    else{
+        printf("No se econtro memAsignada con llave %d\n",cl);
+    }
+
+
+}
 
 void *MapearFichero(char *fichero, int protection) {
     int df, map = MAP_PRIVATE, modo = O_RDONLY;
@@ -253,12 +301,15 @@ void *MapearFichero(char *fichero, int protection) {
     return p;
 }
 
-void do_AllocateMmap(char *tokens[],tList *L) {
+void do_AllocateMmap(char *tokens[], tList *L) {
     char *perm;
     void *p;
     int protection = 0;
 
-    if (tokens[1] == NULL) { printMemList("mmap",L); return; }
+    if (tokens[1] == NULL) {
+        printMemList("mmap", L);
+        return;
+    }
     if ((perm = tokens[2]) != NULL && strlen(perm) < 4) {
         if (strchr(perm, 'r') != NULL) protection |= PROT_READ;
         if (strchr(perm, 'w') != NULL) protection |= PROT_WRITE;
@@ -266,41 +317,44 @@ void do_AllocateMmap(char *tokens[],tList *L) {
     }
     if ((p = MapearFichero(tokens[1], protection)) == NULL)
         perror("Imposible mapear fichero");
-    else{
+    else {
 
         printf("fichero %s mapeado en %p\n", tokens[1], p);
         memData data = malloc(sizeof(struct structMemData));
 
         data->direccion = p;
         data->type = "mmap";
-
-        data->fichero = tokens[1];
+        data->fichero = strdup(tokens[1]);
         data->time = time(NULL);
         insertItem(data, NULL, L);
     }
-
 
 
 }
-void do_AllocateMalloc(char *tokens[],tList *L) {
 
+void do_AllocateMalloc(char *tokens[], tList *L) {
+
+    if (tokens[1] == NULL) {
+
+        printMemList("malloc", L);
+        return;
+    }
     if (atoi(tokens[1]) <= 0) {
 
         printf("Pon un numero mayor que 0\n");
-        return ;
-    }else{
+        return;
+    } else {
 
         memData data = malloc(sizeof(struct structMemData));
 
-        data->direccion =malloc(atoi(tokens[1]));
-        data->fichero = tokens[1];
+        data->nBytes = atoi(tokens[1]);
+        data->direccion = malloc(data->nBytes);
         data->type = "malloc";
         data->time = time(NULL);
         insertItem(data, NULL, L);
-        printf("Asignados %d bytes en %p\n",data->nBytes , data->direccion);
+        printf("Asignados %d bytes en %p\n", data->nBytes, data->direccion);
 
     }
-
 
 
 }
@@ -420,8 +474,6 @@ void Do_pmap(void) /*sin argumentos*/
 }
 
 
-
-
 int allocate(char *tokens[], int tokenNum, Listas L) {
 
 
@@ -431,49 +483,28 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
         if (strcmp(tokens[0], "-malloc") == 0) {
 
 
-            if (tokenNum == 3) {
-
-                do_AllocateMalloc(tokens, &L->listMem);
+            do_AllocateMalloc(tokens, &L->listMem);
 
 
-            } else {
+        } else if (strcmp(tokens[0], "-createshared") == 0) {
 
-                printMemList("malloc", &L->listMem);
+            do_AllocateCreateshared(tokens,&L->listMem);
 
-            }
+        } else if (strcmp(tokens[0], "-shared") == 0) {
 
-        }
-        else if(strcmp(tokens[0], "-createshared") == 0){
+            do_AllocateShared(tokens, &L->listMem);
 
-            if(tokenNum == 3){
+        } else if (strcmp(tokens[0], "-mmap") == 0) {
 
+            do_AllocateMmap(tokens, &L->listMem);
 
-                do_AllocateCreateshared(tokens,&L->listMem);
-
-            }
-
-        }
-        else if(strcmp(tokens[0], "-shared") == 0){
-
-
-        }
-        else if(strcmp(tokens[0], "-mmap") == 0){
-
-            if(tokenNum == 3){
-
-
-
-                do_AllocateMmap(tokens,&L->listMem);
-
-            }
-
-        }
-        else {
+        } else {
 
             printf("Parametro invalido\n");
         }
 
     } else {
+
         printMemList("all", &L->listMem);
 
     }
@@ -482,49 +513,49 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
 
 }
 
-void memdump(char *tokens[], int tokenNum, Listas L){
+void memdump(char *tokens[], int tokenNum, Listas L) {
     void *p;
 
-    if(tokens[0]!=NULL){
+    if (tokens[0] != NULL) {
 
-        p= (void *) strtoul(tokens[0],NULL,16);
+        p = (void *) strtoul(tokens[0], NULL, 16);
 
-        if(tokens[2]==NULL){
+        if (tokens[2] == NULL) {
 
             for (int i = 0; i < 25; ++i) {
-                printf("%c ",*(char *)(p+1));
+                printf("%c ", *(char *) (p + 1));
             }
             printf("\n");
             for (int j = 0; j < 25; ++j) {
-                printf("%2x ",*(char *)(p+1));
+                printf("%2x ", *(char *) (p + 1));
             }
             printf("\n");
-        }else{
+        } else {
             for (int i = 0; i < atoi(tokens[1]); ++i) {
-                printf("%c ",*(char *)(p+1));
+                printf("%c ", *(char *) (p + 1));
             }
             printf("\n");
             for (int j = 0; j < atoi(tokens[1]); ++j) {
-                printf("%2x ",*(char *)(p+1));
+                printf("%2x ", *(char *) (p + 1));
             }
             printf("\n");
         }
     }
 }
 
-void memfill(char *tokens[], int tokenNum, Listas L){
+void memfill(char *tokens[], int tokenNum, Listas L) {
     int i;
     void *p;
 
-    if (tokens[0] != NULL){
+    if (tokens[0] != NULL) {
 
-        p = (void *)strtoull(tokens[0], NULL, 16);
-        if (tokens[1] == NULL){
+        p = (void *) strtoull(tokens[0], NULL, 16);
+        if (tokens[1] == NULL) {
             for (i = 0; i < 128; i++) {
                 (*(char *) (p + i)) = 65;
             }
         }
-        if (tokens[2] == NULL){
+        if (tokens[2] == NULL) {
             for (i = 0; i < atoi(tokens[1]); i++) {
                 (*(char *) (p + i)) = 65;
             }
