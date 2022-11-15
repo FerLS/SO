@@ -9,9 +9,12 @@
 
 int allocate(char *tokens[], int tokenNum, Listas L);
 
-void memdump(char *tokens[], int tokenNum, Listas L);
+int deallocate(char *tokens[], int tokenNum, Listas L);
 
-void memfill(char *tokens[], int tokenNum, Listas L);
+
+int memdump(char *tokens[], int tokenNum, Listas L);
+
+int memfill(char *tokens[], int tokenNum, Listas L);
 
 
 

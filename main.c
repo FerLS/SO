@@ -36,6 +36,7 @@ struct cmd {
         {"stat",    stats},
         {"list",    list},
         {"allocate",    allocate},
+        {"deallocate",    deallocate},
         {"memdump", memdump},
         {"memfill", memfill},
         {NULL, NULL}
@@ -75,6 +76,7 @@ int main() {
 
     char input[MAX_INPUT_SIZE];
     char *tokens[MAX_TOKENS];
+
     int tokenNum = 0;
     tList memList;
     tList histList;
@@ -90,6 +92,7 @@ int main() {
         printf("\033[1;33m");
         printf("> ");
         printf(" \033[0;37m");
+
         fgets(input, MAX_INPUT_SIZE, stdin);
 
         if (input[0] != ' ' && input[0] != '\n') {
@@ -105,12 +108,13 @@ int main() {
             }
         } else {
             printf("Comando no valido\n");
-
+            
         }
 
     }
 
     deleteList(&listas->listHist);
+    deleteList(&listas->listMem);
     free(listas);
     printf("Bye\n");
 

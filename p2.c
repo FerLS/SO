@@ -127,6 +127,9 @@ bool comp_key(void *data, void *extra) {
     key_t *key = extra;
     return inf->key == *key;
 }
+bool comp_dir(void *data,void *extra){
+   return (unsigned  long ) extra  == strtoul((char*) data,NULL,16);
+}
 
 int size = 1000;
 //find(comp_size, &size);
@@ -148,20 +151,18 @@ void printMemList(char *type, tList *L) {
         if (strcmp(type, data->type) == 0 || all) {
 
 
-            if (strcmp( data->type, "malloc") == 0) {
+            if (strcmp(data->type, "malloc") == 0) {
                 struct tm tm = *localtime(&data->time);
                 printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d   %s\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
                        tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
-            }
-            else if (strcmp( data->type, "mmap") == 0) {
+            } else if (strcmp(data->type, "mmap") == 0) {
                 struct tm tm = *localtime(&data->time);
                 printf("%s\t\t%d-%02d-%02d %02d:%02d:%02d   %s\n", data->fichero, tm.tm_year + 1900, tm.tm_mon + 1,
                        tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
-            }
-            else if(strcmp( data->type, "shared") == 0){
+            } else if (strcmp(data->type, "shared") == 0) {
                 struct tm tm = *localtime(&data->time);
-                printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d %d %s\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
-                       tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,data->key, data->type);
+                printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d  %s\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
+                       tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
             }
 
 
@@ -171,6 +172,31 @@ void printMemList(char *type, tList *L) {
 
 
 }
+
+void delMemList(char *type, void *dir, tList *L) {
+
+    bool all = strcmp("all", type) == 0 ? true : false;
+    tPosL p = first(*L);
+
+    for (int i = 0; i < sizeList(L); ++i) {
+
+        memData data = (memData) getItem(p, *L);
+
+        if (strcmp(data->type, "shared") == 0) {
+
+            if ((key_t) dir == data->key || (all && comp_dir(dir,data->direccion))) {
+                deleteAtPosition(p, L);
+            }
+        } else if ((strcmp(type, data->type) == 0 || all) && comp_dir(dir,data->direccion)) {
+
+            deleteAtPosition(p, L);
+
+        }
+        p = next(p, *L);
+    }
+
+}
+
 
 void Recursiva(int n) {
     char automatico[TAMANO];
@@ -266,21 +292,21 @@ void do_AllocateShared(char *tokens[], tList *L) {
     if (p != NULL) {    //DEBERIA BUSCAR TAMMBIEN CREADOS EXTERNAMENTE???
 
         memData data = malloc(sizeof(struct structMemData));
-        memData sh = (memData) getItem(p,*L);
+        memData sh = (memData) getItem(p, *L);
 
-        printf("Memoria compartida de clave %d  en %p\n",cl,sh->direccion);
+        printf("Memoria compartida de clave %d  en %p\n", cl, sh->direccion);
 
         data->direccion = sh->direccion;
         data->nBytes = sh->nBytes;
+        data->key = cl;
         data->type = "shared";
 
         data->time = time(NULL);
         insertItem(data, NULL, L);
 
 
-    }
-    else{
-        printf("No se econtro memAsignada con llave %d\n",cl);
+    } else {
+        printf("No se econtro memAsignada con llave %d\n", cl);
     }
 
 
@@ -362,7 +388,7 @@ void do_AllocateMalloc(char *tokens[], tList *L) {
 void do_DeallocateDelkey(char *tokens[]) {
     key_t clave;
     int id;
-    char *key = tokens[0];
+    char *key = tokens[1];
 
     if (key == NULL || (clave = (key_t) strtoul(key, NULL, 10)) == IPC_PRIVATE) {
         printf("      delkey necesita clave_valida\n");
@@ -486,9 +512,9 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
             do_AllocateMalloc(tokens, &L->listMem);
 
 
-        } else if (strcmp(tokens[0], "-createshared") == 0) {
+        } else if (strcmp(tokens[0], "-cs") == 0) {
 
-            do_AllocateCreateshared(tokens,&L->listMem);
+            do_AllocateCreateshared(tokens, &L->listMem);
 
         } else if (strcmp(tokens[0], "-shared") == 0) {
 
@@ -513,7 +539,46 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
 
 }
 
-void memdump(char *tokens[], int tokenNum, Listas L) {
+int deallocate(char *tokens[], int tokenNum, Listas L) {
+
+
+    if (tokenNum > 1) {
+
+
+        if (strcmp(tokens[0], "-malloc") == 0) {
+
+
+            delMemList("malloc",tokens[1],&L->listMem);
+
+        } else if (strcmp(tokens[0], "-delkey") == 0) {
+
+            do_DeallocateDelkey(tokens);
+
+        } else if (strcmp(tokens[0], "-shared") == 0) {
+
+            delMemList("shared",tokens[1],&L->listMem);
+
+        } else if (strcmp(tokens[0], "-mmap") == 0) {
+
+            delMemList("mmap",tokens[1],&L->listMem);
+
+        } else {
+
+            printf("Parametro invalido\n");
+        }
+
+    } else {
+
+        delMemList("all",tokens[1],&L->listMem);
+
+
+    }
+    return 0;
+
+
+}
+
+int memdump(char *tokens[], int tokenNum, Listas L) {
     void *p;
 
     if (tokens[0] != NULL) {
@@ -543,7 +608,7 @@ void memdump(char *tokens[], int tokenNum, Listas L) {
     }
 }
 
-void memfill(char *tokens[], int tokenNum, Listas L) {
+int memfill(char *tokens[], int tokenNum, Listas L) {
     int i;
     void *p;
 
