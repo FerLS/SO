@@ -285,19 +285,17 @@ void do_AllocateShared(char *tokens[], tList *L) {
         return;
     }
     key_t cl = (key_t) strtoul(tokens[1], NULL, 10);
+    size_t tam = 1;
 
-    tPosL p;
-
-    p = findItem(*L, comp_key, &cl);
-    if (p != NULL) {    //DEBERIA BUSCAR TAMMBIEN CREADOS EXTERNAMENTE???
+    void* p;
+    if ((p = ObtenerMemoriaShmget(cl,tam) )!= NULL) {    //COMO CONSIGUES EL TAMAÑO
 
         memData data = malloc(sizeof(struct structMemData));
-        memData sh = (memData) getItem(p, *L);
 
-        printf("Memoria compartida de clave %d  en %p\n", cl, sh->direccion);
+        printf("Memoria compartida de clave %d  en %p\n", cl, p);
 
-        data->direccion = sh->direccion;
-        data->nBytes = sh->nBytes;
+        data->direccion = p;
+        data->nBytes =(int) tam;
         data->key = cl;
         data->type = "shared";
 
@@ -562,14 +560,18 @@ int deallocate(char *tokens[], int tokenNum, Listas L) {
 
             delMemList("mmap",tokens[1],&L->listMem);
 
-        } else {
+        } else if(atoi(tokens[0]) > 0){
 
+            delMemList("all",tokens[1],&L->listMem);
+
+
+        }else{
             printf("Parametro invalido\n");
         }
 
     } else {
 
-        delMemList("all",tokens[1],&L->listMem);
+        printMemList("all",&L->listMem);
 
 
     }
@@ -609,25 +611,12 @@ int memdump(char *tokens[], int tokenNum, Listas L) {
 }
 
 int memfill(char *tokens[], int tokenNum, Listas L) {
-    int i;
-    void *p;
+
 
     if (tokens[0] != NULL) {
 
-        p = (void *) strtoull(tokens[0], NULL, 16);
-        if (tokens[1] == NULL) {
-            for (i = 0; i < 128; i++) {
-                (*(char *) (p + i)) = 65;
-            }
-        }
-        if (tokens[2] == NULL) {
-            for (i = 0; i < atoi(tokens[1]); i++) {
-                (*(char *) (p + i)) = 65;
-            }
-        }
-        for (i = 0; i < atoi(tokens[1]); i++) {
-            (*(char *) (p + i)) = tokens[2][0];
-        }
+        void *p = (void *) strtoull(tokens[0], NULL, 16);
+        LlenarMemoria(p, atoi(tokens[1]),41);
     }
 }
 /*
