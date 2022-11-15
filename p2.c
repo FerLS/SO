@@ -3,7 +3,6 @@
 //
 
 #include "p2.h"
-#include "p0.h"
 
 /*
 // ALLOCATE
@@ -122,17 +121,9 @@ bool comp_size(void *data, void *extra) {
     return inf->size == *size;
 }
 
-bool comp_key(void *data, void *extra) {
-    memData inf = data;
-    key_t *key = extra;
-    return inf->key == *key;
+bool comp_dir(void *data, void *extra) {
+    return (unsigned long) extra == strtoul((char *) data, NULL, 16);
 }
-bool comp_dir(void *data,void *extra){
-   return (unsigned  long ) extra  == strtoul((char*) data,NULL,16);
-}
-
-int size = 1000;
-//find(comp_size, &size);
 
 #define TAMANO 2048
 
@@ -172,7 +163,7 @@ void printMemList(char *type, tList *L) {
             } else if (strcmp(data->type, "shared") == 0) {
                 struct tm tm = *localtime(&data->time);
                 printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d  %s  %d\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
-                       tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type,data->key);
+                       tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type, data->key);
             }
 
 
@@ -194,10 +185,10 @@ void delMemList(char *type, void *dir, tList *L) {
 
         if (strcmp(data->type, "shared") == 0) {
 
-            if ((key_t) dir == data->key || (all && comp_dir(dir,data->direccion))) {
+            if ((key_t) dir == data->key || (all && comp_dir(dir, data->direccion))) {
                 deleteAtPosition(p, L);
             }
-        } else if ((strcmp(type, data->type) == 0 || all) && comp_dir(dir,data->direccion)) {
+        } else if ((strcmp(type, data->type) == 0 || all) && comp_dir(dir, data->direccion)) {
 
             deleteAtPosition(p, L);
 
@@ -265,7 +256,7 @@ void do_AllocateCreateshared(char *tokens[], tList *L) {
 
         data->direccion = p;
         data->key = cl;
-        data->nBytes = tam;
+        data->nBytes =(int) tam;
         data->type = "shared";
 
         data->time = time(NULL);
@@ -285,15 +276,15 @@ void do_AllocateShared(char *tokens[], tList *L) {
     key_t cl = (key_t) strtoul(tokens[1], NULL, 10);
     size_t tam = 1;
 
-    void* p;
-    if ((p = ObtenerMemoriaShmget(cl,tam) )!= NULL) {    //COMO CONSIGUES EL TAMAÑO
+    void *p;
+    if ((p = ObtenerMemoriaShmget(cl, tam)) != NULL) {    //COMO CONSIGUES EL TAMAÑO
 
         memData data = malloc(sizeof(struct structMemData));
 
         printf("Memoria compartida de clave %d  en %p\n", cl, p);
 
         data->direccion = p;
-        data->nBytes =(int) tam;
+        data->nBytes = (int) tam;
         data->key = cl;
         data->type = "shared";
 
@@ -418,23 +409,24 @@ ssize_t LeerFichero(char *f, void *p, size_t cont) {
     return n;
 }
 
-void do_I_O_read(char *ar[]) {
+void do_I_O_read(char *tokens[]) {
     void *p;
     size_t cont = -1;
     ssize_t n;
-    if (ar[0] == NULL || ar[1] == NULL) {
+    if (tokens[1] == NULL || tokens[2] == NULL) {
         printf("faltan parametros\n");
         return;
     }
-    //p=/cadtop(ar[1]);  /*convertimos de cadena a puntero*/
-    if (ar[2] != NULL)
-        cont = (size_t) atoll(ar[2]);
+    p = (void *) strtoul(tokens[2], NULL, 16);
+    if (tokens[3] != NULL)
+        cont = (size_t) atoll(tokens[3]);
 
-    if ((n = LeerFichero(ar[0], p, cont)) == -1)
+    if ((n = LeerFichero(tokens[1], p, cont)) == -1)
         perror("Imposible leer fichero");
     else
-        printf("leidos %lld bytes de %s en %p\n", (long long) n, ar[0], p);
+        printf("leidos %lld bytes de %s en %p\n", (long long) n, tokens[1], p);
 }
+
 
 ssize_t EscribirFichero(char *f, void *p, size_t cont, int overwrite) {
     ssize_t n;
@@ -456,8 +448,32 @@ ssize_t EscribirFichero(char *f, void *p, size_t cont, int overwrite) {
     return n;
 }
 
+void do_I_O_write(char *tokens[]) {
 
-void Do_pmap(void) /*sin argumentos*/
+    void *p;
+    size_t cont = -1;
+    ssize_t n;
+
+    int o = strcmp(tokens[1], "-o") == 0 ? 1 : 0;
+
+    if (tokens[3 + o] == NULL) {
+        printf("faltan parametros\n");
+        return;
+    }
+    p = (void *) strtoul(tokens[2 + o], NULL, 16);
+    if (tokens[3] != NULL)
+        cont = (size_t) atoll(tokens[3 + o]);
+
+    if ((n = EscribirFichero(tokens[1 + o], p, cont, o)) == -1)
+        perror("Imposible leer fichero");
+    else
+        printf("escritos %lld bytes en %s desde %p\n", (long long) n, tokens[1 + o], p);
+
+
+}
+
+
+void Do_pmap(void) /*sin argumenFtos*/
 {
     pid_t pid;       /*hace el pmap (o equivalente) del proceso actual*/
     char elpid[32];
@@ -544,7 +560,7 @@ int deallocate(char *tokens[], int tokenNum, Listas L) {
         if (strcmp(tokens[0], "-malloc") == 0) {
 
 
-            delMemList("malloc",tokens[1],&L->listMem);
+            delMemList("malloc", tokens[1], &L->listMem);
 
         } else if (strcmp(tokens[0], "-delkey") == 0) {
 
@@ -552,24 +568,24 @@ int deallocate(char *tokens[], int tokenNum, Listas L) {
 
         } else if (strcmp(tokens[0], "-shared") == 0) {
 
-            delMemList("shared",tokens[1],&L->listMem);
+            delMemList("shared", tokens[1], &L->listMem);
 
         } else if (strcmp(tokens[0], "-mmap") == 0) {
 
-            delMemList("mmap",tokens[1],&L->listMem);
+            delMemList("mmap", tokens[1], &L->listMem);
 
-        } else if(atoi(tokens[0]) > 0){
+        } else if (atoi(tokens[0]) > 0) {
 
-            delMemList("all",tokens[1],&L->listMem);
+            delMemList("all", tokens[1], &L->listMem);
 
 
-        }else{
+        } else {
             printf("Parametro invalido\n");
         }
 
     } else {
 
-        printMemList("all",&L->listMem);
+        printMemList("all", &L->listMem);
 
 
     }
@@ -618,12 +634,42 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
         int c = 65;
         int tam = tokens[1] == NULL ? 128 : atoi(tokens[1]);
         void *p = (void *) strtoull(tokens[0], NULL, 16);
-        LlenarMemoria(p, tam,c);
+        LlenarMemoria(p, tam, c);
 
-        printf("Llenando %d bytes de memoria con el byte %c(%d) a partir de la direccion %p\n",tam,c,c,p);
+        printf("Llenando %d bytes de memoria con el byte %c(%d) a partir de la direccion %p\n", tam, c, c, p);
     }
     return 0;
 }
+
+
+int io(char *tokens[], int tokenNum, Listas L) {
+
+    if (tokenNum > 1) {
+
+        if (strcmp("read", tokens[0]) == 0) {
+            do_I_O_read(tokens);
+        } else if (strcmp("write", tokens[0]) == 0) {
+            do_I_O_write(tokens);
+        } else {
+
+            printf("Parametro invalido\n");
+        }
+
+    } else {
+        printf("Faltan parametros\n");
+    }
+
+}
+
+int recursiva(char *tokens[], int tokenNum, Listas L) {
+    if (tokenNum > 1) {
+        recurse(atoi(tokens[0]));
+    } else {
+        printf("Escribe el número de veces que se va a ejecutar.\n");
+    }
+    return 0;
+}
+
 
 /*
 //global variables for function memoria
@@ -662,16 +708,3 @@ int memory(char *tokens[], int tokenNum, Listas *L){
     return 0;
 }
 */
-
-
-int recursiva(char *tokens[], int tokenNum, Listas L){
-    if (tokens[0]!=NULL) {
-        recurse(atoi(tokens[0]));
-    } else {
-        printf("Escribe el número de veces que se va a ejecutar.\n");
-    }
-    return 0;
-}
-
-
-

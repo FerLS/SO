@@ -39,6 +39,7 @@ struct cmd {
         {"memdump", memdump},
         {"memfill", memfill},
         {"recurse",recursiva},
+        {"i-o",io},
         {NULL, NULL}
 };
 

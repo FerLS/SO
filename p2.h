@@ -18,6 +18,7 @@ int memfill(char *tokens[], int tokenNum, Listas L);
 
 int recursiva(char *tokens[], int tokenNum, Listas L);
 
+int io(char *tokens[], int tokenNum, Listas L);
 
 
 #endif //PRACTICA1_P2_H
