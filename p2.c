@@ -3,6 +3,7 @@
 //
 
 #include "p2.h"
+#include "p0.h"
 
 /*
 // ALLOCATE
@@ -420,9 +421,7 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
         }
 
     } else {
-
         printMemList("all", &L->listMem);
-
 
     }
     return 0;
@@ -430,7 +429,7 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
 
 }
 
-void memdump(char *tokens[]){
+void memdump(char *tokens[], int tokenNum, Listas L){
     void *p;
 
     if(tokens[0]!=NULL){
@@ -460,7 +459,7 @@ void memdump(char *tokens[]){
     }
 }
 
-void memfill(char *tokens[]){
+void memfill(char *tokens[], int tokenNum, Listas L){
     int i;
     void *p;
 
@@ -468,17 +467,54 @@ void memfill(char *tokens[]){
 
         p = (void *)strtoull(tokens[0], NULL, 16);
         if (tokens[1] == NULL){
-            for (i = 0; i < 128; i++)
-                (*(char *)(p + i)) = 65;
-            return;
+            for (i = 0; i < 128; i++) {
+                (*(char *) (p + i)) = 65;
+            }
         }
         if (tokens[2] == NULL){
-            for (i = 0; i < atoi(tokens[1]); i++)
-                (*(char *)(p + i)) = 65;
-            return;
+            for (i = 0; i < atoi(tokens[1]); i++) {
+                (*(char *) (p + i)) = 65;
+            }
         }
         for (i = 0; i < atoi(tokens[1]); i++) {
             (*(char *) (p + i)) = tokens[2][0];
         }
     }
 }
+/*
+//global variables for function memoria
+int global1=0,global2=0,global3=0;
+//Muestra muestra detalles de la memoria del proceso
+int memory(char *tokens[], int tokenNum, Listas *L){
+    if(tokenNum !=0){
+        for(int i=0;i<tokenNum;i++){
+            if(strcmp(tokens[i], "-vars")== 0){
+                auto int x=0,y=0,z=0;
+                static int a=0,b=0,c=0;
+
+                printf("automatic variables:\t%p, %p, %p\n", &x, &y, &z);
+                printf("static variables:\t%p, %p, %p\n", &a, &b, &c);
+                printf("global variables:\t%p, %p, %p\n", &global1, &global2, &global3);
+
+            }if(strcmp(tokens[i], "-funcs")== 0){
+                printf("program functions:\t%p, %p, %p\n", autores, pid, infosis);
+                printf("library functions:\t%p, %p, %p\n", malloc, printf, strcmp);
+
+            }if(strcmp(tokens[i], "-blocks")== 0){
+
+
+            }else if(strcmp(tokens[i], "-all")== 0){
+                char *input[] = {"-vars","-funcs", "-blocks"};
+                memory(input, 3, L);
+
+            }else if(strcmp(tokens[i], "-pmap")== 0){
+
+            }
+        }
+    }else{
+        char *input[] = {"-all"};
+        memory(input, 1, L);
+    }
+    return 0;
+}
+*/

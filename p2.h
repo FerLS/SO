@@ -9,6 +9,10 @@
 
 int allocate(char *tokens[], int tokenNum, Listas L);
 
+void memdump(char *tokens[], int tokenNum, Listas L);
+
+void memfill(char *tokens[], int tokenNum, Listas L);
+
 
 
 #endif //PRACTICA1_P2_H

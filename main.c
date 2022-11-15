@@ -36,6 +36,8 @@ struct cmd {
         {"stat",    stats},
         {"list",    list},
         {"allocate",    allocate},
+        {"memdump", memdump},
+        {"memfill", memfill},
         {NULL, NULL}
 };
 
