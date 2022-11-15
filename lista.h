@@ -12,7 +12,7 @@
 
 
 struct struchistData{
-    char comando[20];
+    char comando[1024];
     int idCounter;
 };
 struct structMemData{
