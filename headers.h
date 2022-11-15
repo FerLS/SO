@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include<unistd.h>
 #include <errno.h>
@@ -26,6 +27,7 @@
 
 #define MAX_INPUT_SIZE 1024
 #define MAX_TOKENS 64
+
 
 
 int split_string(char *cadena, char *trozos[]);

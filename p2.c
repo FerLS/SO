@@ -161,8 +161,8 @@ void printMemList(char *type, tList *L) {
                        tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
             } else if (strcmp(data->type, "shared") == 0) {
                 struct tm tm = *localtime(&data->time);
-                printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d  %s\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
-                       tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
+                printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d  %s  %d\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
+                       tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type,data->key);
             }
 
 
@@ -267,7 +267,7 @@ void do_AllocateCreateshared(char *tokens[], tList *L) {
 
         data->direccion = p;
         data->key = cl;
-        data->nBytes = atoi(tokens[2]);
+        data->nBytes = tam;
         data->type = "shared";
 
         data->time = time(NULL);
@@ -510,7 +510,7 @@ int allocate(char *tokens[], int tokenNum, Listas L) {
             do_AllocateMalloc(tokens, &L->listMem);
 
 
-        } else if (strcmp(tokens[0], "-cs") == 0) {
+        } else if (strcmp(tokens[0], "-createshared") == 0) {
 
             do_AllocateCreateshared(tokens, &L->listMem);
 
@@ -608,6 +608,8 @@ int memdump(char *tokens[], int tokenNum, Listas L) {
             printf("\n");
         }
     }
+
+    return 0;
 }
 
 int memfill(char *tokens[], int tokenNum, Listas L) {
@@ -615,9 +617,14 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
 
     if (tokens[0] != NULL) {
 
+        int c = 65;
+        int tam = tokens[1] == NULL ? 128 : atoi(tokens[1]);
         void *p = (void *) strtoull(tokens[0], NULL, 16);
-        LlenarMemoria(p, atoi(tokens[1]),41);
+        LlenarMemoria(p, tam,c);
+
+        printf("Llenando %d bytes de memoria con el byte %c(%d) a partir de la direccion %p\n",tam,c,c,p);
     }
+    return 0;
 }
 /*
 //global variables for function memoria
