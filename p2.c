@@ -136,6 +136,16 @@ int size = 1000;
 
 #define TAMANO 2048
 
+void recurse(int n) {
+    char automatico[TAMANO];
+    static char estatico[TAMANO];
+
+    printf("parametro:%3d(%p) array %p, arr estatico %p\n", n, &n, automatico, estatico);
+
+    if (n > 0)
+        recurse(n - 1);
+}
+
 void printMemList(char *type, tList *L) {
 
     memData data;
@@ -196,18 +206,6 @@ void delMemList(char *type, void *dir, tList *L) {
     }
 
 }
-
-
-void Recursiva(int n) {
-    char automatico[TAMANO];
-    static char estatico[TAMANO];
-
-    printf("parametro:%3d(%p) array %p, arr estatico %p\n", n, &n, automatico, estatico);
-
-    if (n > 0)
-        Recursiva(n - 1);
-}
-
 
 void LlenarMemoria(void *p, size_t cont, unsigned char byte) {
     unsigned char *arr = (unsigned char *) p;
@@ -619,6 +617,7 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
         LlenarMemoria(p, atoi(tokens[1]),41);
     }
 }
+
 /*
 //global variables for function memoria
 int global1=0,global2=0,global3=0;
@@ -656,3 +655,16 @@ int memory(char *tokens[], int tokenNum, Listas *L){
     return 0;
 }
 */
+
+
+int recursiva(char *tokens[], int tokenNum, Listas L){
+    if (tokens[0]!=NULL) {
+        recurse(atoi(tokens[0]));
+    } else {
+        printf("Escribe el número de veces que se va a ejecutar.\n");
+    }
+    return 0;
+}
+
+
+

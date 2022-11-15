@@ -1,4 +1,3 @@
-
 //Fernando Alvarez Legisima fernando.alvarezr@udc.es
 //Brais Sanchez Ferreiro brais.sferreiro@udc.es
 
@@ -39,6 +38,7 @@ struct cmd {
         {"deallocate",    deallocate},
         {"memdump", memdump},
         {"memfill", memfill},
+        {"recurse",recursiva},
         {NULL, NULL}
 };
 
