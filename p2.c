@@ -596,31 +596,22 @@ int deallocate(char *tokens[], int tokenNum, Listas L) {
 
 int memdump(char *tokens[], int tokenNum, Listas L) {
     void *p;
-
+    int n;
     if (tokens[0] != NULL) {
 
-        p = (void *) strtoul(tokens[0], NULL, 16);
+        unsigned long ul =  strtoul(tokens[0], NULL, 16);
+        if(ul<=0) return 0;
+        p = (void *) ul;
+        n = tokens[1] == NULL ? 25 : atoi(tokens[1]);
 
-        if (tokens[2] == NULL) {
-
-            for (int i = 0; i < 25; ++i) {
-                printf("%c ", *(char *) (p + 1));
-            }
-            printf("\n");
-            for (int j = 0; j < 25; ++j) {
-                printf("%2x ", *(char *) (p + 1));
-            }
-            printf("\n");
-        } else {
-            for (int i = 0; i < atoi(tokens[1]); ++i) {
-                printf("%c ", *(char *) (p + 1));
-            }
-            printf("\n");
-            for (int j = 0; j < atoi(tokens[1]); ++j) {
-                printf("%2x ", *(char *) (p + 1));
-            }
-            printf("\n");
+        for (int i = 0; i < n; ++i) {
+            printf("%c ", *(char *) (p + 1));
         }
+        printf("\n");
+        for (int j = 0; j < n; ++j) {
+            printf("%2x ", *(char *) (p + 1));
+        }
+        printf("\n");
     }
 
     return 0;
@@ -632,7 +623,7 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
     if (tokens[0] != NULL) {
 
         int c = 65;
-        int tam = tokens[1] == NULL ? 128 : atoi(tokens[1]);
+        int tam = tokenNum == 1 ? 128 : atoi(tokens[1]);
         void *p = (void *) strtoull(tokens[0], NULL, 16);
         LlenarMemoria(p, tam, c);
 
