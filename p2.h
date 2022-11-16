@@ -16,6 +16,8 @@ int memdump(char *tokens[], int tokenNum, Listas L);
 
 int memfill(char *tokens[], int tokenNum, Listas L);
 
+int memory(char *tokens[], int tokenNum, Listas L);
+
 int recursiva(char *tokens[], int tokenNum, Listas L);
 
 int io(char *tokens[], int tokenNum, Listas L);

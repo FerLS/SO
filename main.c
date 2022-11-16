@@ -38,6 +38,7 @@ struct cmd {
         {"deallocate",    deallocate},
         {"memdump", memdump},
         {"memfill", memfill},
+        {"memory", memory},
         {"recurse",recursiva},
         {"i-o",io},
         {NULL, NULL}

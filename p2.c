@@ -3,6 +3,7 @@
 //
 
 #include "p2.h"
+#include "p0.h"
 
 /*
 // ALLOCATE
@@ -106,9 +107,6 @@ lo de siempre
 
  1 - delcaramos un array y un aaray estaticco, hacemos llamadas recurisvas
 
-
-
-
 */
 
 struct meminfo {
@@ -170,8 +168,6 @@ void printMemList(char *type, tList *L) {
         }
         p = next(p, *L);
     }
-
-
 }
 
 void delMemList(char *type, void *dir, tList *L) {
@@ -195,7 +191,6 @@ void delMemList(char *type, void *dir, tList *L) {
         }
         p = next(p, *L);
     }
-
 }
 
 void LlenarMemoria(void *p, size_t cont, unsigned char byte) {
@@ -368,8 +363,6 @@ void do_AllocateMalloc(char *tokens[], tList *L) {
         printf("Asignados %d bytes en %p\n", data->nBytes, data->direccion);
 
     }
-
-
 }
 
 void do_DeallocateDelkey(char *tokens[]) {
@@ -388,7 +381,6 @@ void do_DeallocateDelkey(char *tokens[]) {
     if (shmctl(id, IPC_RMID, NULL) == -1)
         perror("shmctl: imposible eliminar memoria compartida\n");
 }
-
 
 ssize_t LeerFichero(char *f, void *p, size_t cont) {
     struct stat s;
@@ -426,7 +418,6 @@ void do_I_O_read(char *tokens[]) {
     else
         printf("leidos %lld bytes de %s en %p\n", (long long) n, tokens[1], p);
 }
-
 
 ssize_t EscribirFichero(char *f, void *p, size_t cont, int overwrite) {
     ssize_t n;
@@ -472,7 +463,6 @@ void do_I_O_write(char *tokens[]) {
 
 }
 
-
 void Do_pmap(void) /*sin argumenFtos*/
 {
     pid_t pid;       /*hace el pmap (o equivalente) del proceso actual*/
@@ -511,54 +501,37 @@ void Do_pmap(void) /*sin argumenFtos*/
     waitpid(pid, NULL, 0);
 }
 
-
 int allocate(char *tokens[], int tokenNum, Listas L) {
 
-
     if (tokenNum > 1) {
-
-
         if (strcmp(tokens[0], "-malloc") == 0) {
 
-
             do_AllocateMalloc(tokens, &L->listMem);
-
-
         } else if (strcmp(tokens[0], "-createshared") == 0) {
 
             do_AllocateCreateshared(tokens, &L->listMem);
-
         } else if (strcmp(tokens[0], "-shared") == 0) {
 
             do_AllocateShared(tokens, &L->listMem);
-
         } else if (strcmp(tokens[0], "-mmap") == 0) {
 
             do_AllocateMmap(tokens, &L->listMem);
-
         } else {
 
             printf("Parametro invalido\n");
         }
-
     } else {
 
         printMemList("all", &L->listMem);
-
     }
     return 0;
-
-
 }
 
 int deallocate(char *tokens[], int tokenNum, Listas L) {
 
-
     if (tokenNum > 1) {
 
-
         if (strcmp(tokens[0], "-malloc") == 0) {
-
 
             delMemList("malloc", tokens[1], &L->listMem);
 
@@ -578,20 +551,14 @@ int deallocate(char *tokens[], int tokenNum, Listas L) {
 
             delMemList("all", tokens[1], &L->listMem);
 
-
         } else {
             printf("Parametro invalido\n");
         }
 
     } else {
-
         printMemList("all", &L->listMem);
-
-
     }
     return 0;
-
-
 }
 
 int memdump(char *tokens[], int tokenNum, Listas L) {
@@ -649,7 +616,7 @@ int io(char *tokens[], int tokenNum, Listas L) {
     } else {
         printf("Faltan parametros\n");
     }
-
+    return 0;
 }
 
 int recursiva(char *tokens[], int tokenNum, Listas L) {
@@ -661,35 +628,34 @@ int recursiva(char *tokens[], int tokenNum, Listas L) {
     return 0;
 }
 
-
-/*
-//global variables for function memoria
 int global1=0,global2=0,global3=0;
-//Muestra muestra detalles de la memoria del proceso
-int memory(char *tokens[], int tokenNum, Listas *L){
-    if(tokenNum !=0){
+
+int memory(char *tokens[], int tokenNum, Listas L){
+
+    if(tokenNum >=1){
+
         for(int i=0;i<tokenNum;i++){
             if(strcmp(tokens[i], "-vars")== 0){
                 auto int x=0,y=0,z=0;
                 static int a=0,b=0,c=0;
 
-                printf("automatic variables:\t%p, %p, %p\n", &x, &y, &z);
-                printf("static variables:\t%p, %p, %p\n", &a, &b, &c);
-                printf("global variables:\t%p, %p, %p\n", &global1, &global2, &global3);
+                printf("Variables locales:\t%p, %p, %p\n", &x, &y, &z);
+                printf("Variables estáticas:\t%p, %p, %p\n", &a, &b, &c);
+                printf("Variables globales:\t%p, %p, %p\n", &global1, &global2, &global3);
 
             }if(strcmp(tokens[i], "-funcs")== 0){
-                printf("program functions:\t%p, %p, %p\n", autores, pid, infosis);
-                printf("library functions:\t%p, %p, %p\n", malloc, printf, strcmp);
+                printf("Funciones de programa:\t%p, %p, %p\n", autores, pid, infosis);
+                printf("Funciones de librería:\t%p, %p, %p\n", malloc, printf, strcmp);
 
             }if(strcmp(tokens[i], "-blocks")== 0){
-
+                deallocate(NULL,0,L);
 
             }else if(strcmp(tokens[i], "-all")== 0){
                 char *input[] = {"-vars","-funcs", "-blocks"};
                 memory(input, 3, L);
 
             }else if(strcmp(tokens[i], "-pmap")== 0){
-
+                Do_pmap();
             }
         }
     }else{
@@ -698,4 +664,3 @@ int memory(char *tokens[], int tokenNum, Listas *L){
     }
     return 0;
 }
-*/
