@@ -66,7 +66,6 @@ int process_input(char *tokens[], int tokenNum, Listas L) {
 void UpdateList(char input[], tList *L) {
 
     histData item = malloc(sizeof (struct struchistData));
-
     strcpy(item->comando, input);
     item->idCounter = isEmptyList(*L) ? 0 : ((histData)getItem(last(*L), *L))->idCounter + 1;
     if (!insertItem(item, NULL, L)) {
@@ -116,7 +115,7 @@ int main() {
     }
 
     deleteList(&listas->listHist);
-    deleteList(&listas->listMem);
+    FreeListMem(&listas->listMem);
     free(listas);
     printf("Bye\n");
 

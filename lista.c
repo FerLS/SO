@@ -124,7 +124,7 @@ void deleteAtPosition(tPosL p, tList *L) {
         p->next = q->next;
         p = q;
     }
-
+    free(getItem(p,*L));
     free(p);
 
 }
@@ -135,6 +135,7 @@ void deleteList(tList *L) {
     while (*L != LNULL) {
         p = *L;
         *L = (*L)->next;
+        free(getItem(p,*L));
         free(p);
 
     }

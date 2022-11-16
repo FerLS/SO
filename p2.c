@@ -152,15 +152,18 @@ void printMemList(char *type, tList *L) {
 
             if (strcmp(data->type, "malloc") == 0) {
                 struct tm tm = *localtime(&data->time);
-                printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d   %s\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
+                printf("%p\t\t %d %d-%02d-%02d %02d:%02d:%02d   %s\n", data->direccion, data->nBytes, tm.tm_year + 1900,
+                       tm.tm_mon + 1,
                        tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
             } else if (strcmp(data->type, "mmap") == 0) {
                 struct tm tm = *localtime(&data->time);
-                printf("%s\t\t%d-%02d-%02d %02d:%02d:%02d   %s\n", data->fichero, tm.tm_year + 1900, tm.tm_mon + 1,
+                printf("%s\t\t %d-%02d-%02d %02d:%02d:%02d   %s\n", data->fichero, tm.tm_year + 1900,
+                       tm.tm_mon + 1,
                        tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type);
             } else if (strcmp(data->type, "shared") == 0) {
                 struct tm tm = *localtime(&data->time);
-                printf("%p\t\t%d-%02d-%02d %02d:%02d:%02d  %s  %d\n", data->direccion, tm.tm_year + 1900, tm.tm_mon + 1,
+                printf("%p\t\t %d %d-%02d-%02d %02d:%02d:%02d  %s  %d\n", data->direccion, data->nBytes,
+                       tm.tm_year + 1900, tm.tm_mon + 1,
                        tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->type, data->key);
             }
 
@@ -170,7 +173,7 @@ void printMemList(char *type, tList *L) {
     }
 }
 
-void delMemList(char *type, void *dir, tList *L) {
+void delMemList(char *type, void *x, tList *L) {
 
     bool all = strcmp("all", type) == 0 ? true : false;
     tPosL p = first(*L);
@@ -179,15 +182,28 @@ void delMemList(char *type, void *dir, tList *L) {
 
         memData data = (memData) getItem(p, *L);
 
-        if (strcmp(data->type, "shared") == 0) {
+        if ((strcmp(data->type, "shared") == 0 && atoi(x) == data->key) || (all && comp_dir(x, data->direccion))) {
 
-            if ((key_t) dir == data->key || (all && comp_dir(dir, data->direccion))) {
-                deleteAtPosition(p, L);
-            }
-        } else if ((strcmp(type, data->type) == 0 || all) && comp_dir(dir, data->direccion)) {
+            printf("borrado %p\n", data->direccion);
 
+            shmdt(((memData) getItem(p, *L))->direccion);
             deleteAtPosition(p, L);
+            break;
+        } else if ((strcmp(data->type, "mmap") == 0 && atoi(x) == data->nBytes) ||
+                   (all && comp_dir(x, data->direccion))) {
 
+            printf("borrado %p\n", data->fichero);
+            free(data->fichero);
+            munmap(data->direccion, (size_t) x);
+            deleteAtPosition(p, L);
+            break;
+
+        } else if ((atoi(x) == data->nBytes) || (all && comp_dir(x, data->direccion))) {
+
+            printf("borrado %p\n", data->direccion);
+            free(((memData) getItem(p, *L))->direccion);
+            deleteAtPosition(p, L);
+            break;
         }
         p = next(p, *L);
     }
@@ -196,12 +212,12 @@ void delMemList(char *type, void *dir, tList *L) {
 void LlenarMemoria(void *p, size_t cont, unsigned char byte) {
     unsigned char *arr = (unsigned char *) p;
     size_t i;
-
-    for (i = 0; i < cont; i++)
+    size_t n = sizeof(&arr)/sizeof(arr[0]);
+    for (i = 0; i < cont && i < n; i++)
         arr[i] = byte;
 }
 
-void *ObtenerMemoriaShmget(key_t clave, size_t tam) {
+void *ObtenerMemoriaShmget(key_t clave, size_t tam, tList *L) {
     void *p;
     int aux, id, flags = 0777;
     struct shmid_ds s;
@@ -224,6 +240,20 @@ void *ObtenerMemoriaShmget(key_t clave, size_t tam) {
     }
     shmctl(id, IPC_STAT, &s);
     /* Guardar en la lista   InsertarNodoShared (&L, p, s.shm_segsz, clave); */
+
+
+    memData data = malloc(sizeof(struct structMemData));
+
+
+    data->direccion = p;
+    data->nBytes = s.shm_segsz;
+    data->key = clave;
+    data->type = "shared";
+
+    data->time = time(NULL);
+    insertItem(data, NULL, L);
+
+
     return (p);
 }
 
@@ -243,20 +273,8 @@ void do_AllocateCreateshared(char *tokens[], tList *L) {
         printf("No se asignan bloques de 0 bytes\n");
         return;
     }
-    if ((p = ObtenerMemoriaShmget(cl, tam)) != NULL) {
+    if ((p = ObtenerMemoriaShmget(cl, tam, L)) != NULL) {
         printf("Asignados %s bytes en %p\n", tokens[2], p);
-
-
-        memData data = malloc(sizeof(struct structMemData));
-
-        data->direccion = p;
-        data->key = cl;
-        data->nBytes = (int) tam;
-        data->type = "shared";
-
-        data->time = time(NULL);
-        insertItem(data, NULL, L);
-
     } else {
         printf("Imposible asignar memoria compartida clave %lu:%s\n", (unsigned long) cl, strerror(errno));
     }
@@ -268,25 +286,13 @@ void do_AllocateShared(char *tokens[], tList *L) {
         printMemList("shared", L);
         return;
     }
+
     key_t cl = (key_t) strtoul(tokens[1], NULL, 10);
-    size_t tam = 1;
 
     void *p;
-    if ((p = ObtenerMemoriaShmget(cl, tam)) != NULL) {    //COMO CONSIGUES EL TAMAÑO
-
-        memData data = malloc(sizeof(struct structMemData));
+    if ((p = ObtenerMemoriaShmget(cl, 0, L)) != NULL) {    //COMO CONSIGUES EL TAMAÑO
 
         printf("Memoria compartida de clave %d  en %p\n", cl, p);
-
-        data->direccion = p;
-        data->nBytes = (int) tam;
-        data->key = cl;
-        data->type = "shared";
-
-        data->time = time(NULL);
-        insertItem(data, NULL, L);
-
-
     } else {
         printf("No se econtro memAsignada con llave %d\n", cl);
     }
@@ -332,6 +338,7 @@ void do_AllocateMmap(char *tokens[], tList *L) {
 
         data->direccion = p;
         data->type = "mmap";
+        data->nBytes = 1;
         data->fichero = strdup(tokens[1]);
         data->time = time(NULL);
         insertItem(data, NULL, L);
@@ -589,9 +596,9 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
 
     if (tokens[0] != NULL) {
 
-        int c = 65;
-        int tam = tokenNum == 1 ? 128 : atoi(tokens[1]);
+        unsigned char c = 65;
         void *p = (void *) strtoull(tokens[0], NULL, 16);
+        int tam = tokens[1] == NULL ? 128: atoi(tokens[1]);
         LlenarMemoria(p, tam, c);
 
         printf("Llenando %d bytes de memoria con el byte %c(%d) a partir de la direccion %p\n", tam, c, c, p);
@@ -635,7 +642,7 @@ int memory(char *tokens[], int tokenNum, Listas L) {
     int x = 0, y = 0, z = 0;
     static int a = 0, b = 0, c = 0;
 
-    if (tokenNum > 1 &&  strcmp(tokens[0], "-vars") == 0) {
+    if (tokenNum > 1 && strcmp(tokens[0], "-vars") == 0) {
 
         printf("Variables locales:\t%p, %p, %p\n", &x, &y, &z);
         printf("Variables estáticas:\t%p, %p, %p\n", &a, &b, &c);
@@ -652,7 +659,7 @@ int memory(char *tokens[], int tokenNum, Listas L) {
     }
     if (tokenNum > 1 && strcmp(tokens[0], "-blocks") == 0) {
 
-        deallocate(NULL, 0, L);
+        printMemList("all", &L->listMem);
         return 0;
 
     } else if (tokenNum > 1 && strcmp(tokens[0], "-pmap") == 0) {
@@ -664,8 +671,37 @@ int memory(char *tokens[], int tokenNum, Listas L) {
         printf("Variables globales:\t%p, %p, %p\n", &global1, &global2, &global3);
         printf("Funciones de programa:\t%p, %p, %p\n", autores, pid, infosis);
         printf("Funciones de librería:\t%p, %p, %p\n", malloc, printf, strcmp);
-        printMemList("all",&L->listMem);
+        printMemList("all", &L->listMem);
         return 0;
 
     }
+
+
+}
+
+void FreeListMem(tList *L) {
+
+    tPosL p = first(*L);
+
+    for (int i = 0; i < sizeList(L); ++i) {
+
+        memData data = (memData) getItem(p, *L);
+
+        if (strcmp(data->type, "shared") == 0) {
+
+            shmdt(((memData) getItem(p, *L))->direccion);
+        } else if (strcmp(data->type, "mmap") == 0) {
+
+            free(data->fichero);
+            munmap(data->direccion, (size_t) data->nBytes);
+
+        } else {
+            free(((memData) getItem(p, *L))->direccion);
+        }
+        p = next(p, *L);
+    }
+
+    deleteList(L);
+
+
 }

@@ -22,4 +22,6 @@ int recursiva(char *tokens[], int tokenNum, Listas L);
 
 int io(char *tokens[], int tokenNum, Listas L);
 
+void FreeListMem(tList *L);
+
 #endif //PRACTICA1_P2_H
