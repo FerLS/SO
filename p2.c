@@ -632,36 +632,48 @@ int global1=0,global2=0,global3=0;
 
 int memory(char *tokens[], int tokenNum, Listas L){
 
-    if(tokenNum >=1){
+    int x=0,y=0,z=0;
+    static int a=0,b=0,c=0;
+
+    if(tokenNum >1){
 
         for(int i=0;i<tokenNum;i++){
             if(strcmp(tokens[i], "-vars")== 0){
-                auto int x=0,y=0,z=0;
-                static int a=0,b=0,c=0;
 
                 printf("Variables locales:\t%p, %p, %p\n", &x, &y, &z);
                 printf("Variables estáticas:\t%p, %p, %p\n", &a, &b, &c);
                 printf("Variables globales:\t%p, %p, %p\n", &global1, &global2, &global3);
+                return 0;
 
             }if(strcmp(tokens[i], "-funcs")== 0){
+
                 printf("Funciones de programa:\t%p, %p, %p\n", autores, pid, infosis);
                 printf("Funciones de librería:\t%p, %p, %p\n", malloc, printf, strcmp);
+                return 0;
 
             }if(strcmp(tokens[i], "-blocks")== 0){
+
                 deallocate(NULL,0,L);
+                return 0;
 
             }else if(strcmp(tokens[i], "-all")== 0){
-                char *input[] = {"-vars","-funcs", "-blocks"};
-                memory(input, 3, L);
+                printf("Variables locales:\t%p, %p, %p\n", &x, &y, &z);
+                printf("Variables estáticas:\t%p, %p, %p\n", &a, &b, &c);
+                printf("Variables globales:\t%p, %p, %p\n", &global1, &global2, &global3);
+                printf("Funciones de programa:\t%p, %p, %p\n", autores, pid, infosis);
+                printf("Funciones de librería:\t%p, %p, %p\n", malloc, printf, strcmp);
+                deallocate(NULL,0,L);
+                return 0;
 
             }else if(strcmp(tokens[i], "-pmap")== 0){
                 Do_pmap();
+                return 0;
             }
         }
+
     }else{
         char *input[] = {"-all"};
-        memory(input, 1, L);
+        memory(input, 2, L);
     }
     return 0;
-
 }
