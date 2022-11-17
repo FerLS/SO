@@ -575,7 +575,8 @@ int memdump(char *tokens[], int tokenNum, Listas L) {
     void *p;
     int n;
     if (tokens[0] != NULL) {
-
+        
+      //si el n que pasas es -1 tiene que leer todo el bloque(no vale usar la lista)
         unsigned long ul = strtoul(tokens[0], NULL, 16);
         if (ul <= 0) return 0;
         p = (void *) ul;
