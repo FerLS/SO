@@ -125,6 +125,8 @@ bool comp_dir(void *data, void *extra) {
 
 #define TAMANO 2048
 
+typedef struct string string;
+
 void recurse(int n) {
     char automatico[TAMANO];
     static char estatico[TAMANO];
@@ -133,10 +135,6 @@ void recurse(int n) {
 
     if (n > 0)
         recurse(n - 1);
-}
-
-int intToAscii(int number) {
-    return '0' + number;
 }
 
 void printMemList(char *type, tList *L) {
@@ -598,12 +596,14 @@ int memdump(char *tokens[], int tokenNum, Listas L) {
 
 int memfill(char *tokens[], int tokenNum, Listas L) {
     if (tokens[0] != NULL) {
-        int tam,c=atoi(tokens[2]);
+        int tam,c;
         void *p = (void *) strtoull(tokens[0], NULL, 16);
         if(tokens[1]==NULL){
             tam=128;
+            c=65;
         }else{
             tam=atoi(tokens[1]);
+            c=atoi(tokens[2]);
         }
         LlenarMemoria(p, tam, c);
         printf("Llenando %d bytes de memoria con el byte %c(%d) a partir de la direccion %p\n", tam, c, c, p);
@@ -612,7 +612,6 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
     }
     return 0;
 }
-
 
 int io(char *tokens[], int tokenNum, Listas L) {
 
