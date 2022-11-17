@@ -598,7 +598,6 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
     if (tokens[0] != NULL) {
         int tam,c;
         void *p = (void *) strtoull(tokens[0], NULL, 16);
-        if (p==NULL) {
             if (tokens[1] == NULL) {
                 tam = 128;
                 c = 65;
@@ -607,10 +606,7 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
                 c = atoi(tokens[2]);
             }
             LlenarMemoria(p, tam, c);
-            printf("Llenando %d bytes de memoria con el byte %c(%d) a partir de la direccion %p\n", tam, c, c, p);
-        } else {
-            printf("Esa posicion de memoria no existe.\n");
-        }
+            printf("Llenando %d bytes de memoria con el byte %c(%02X) a partir de la direccion %p\n", tam, c,c , p);
     }else{
         printf("Escriba la direccion, cont y los bytes.\n");
     }
