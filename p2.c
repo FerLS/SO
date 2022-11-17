@@ -608,7 +608,7 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
         LlenarMemoria(p, tam, c);
         printf("Llenando %d bytes de memoria con el byte %c(%d) a partir de la direccion %p\n", tam, c, c, p);
     }else{
-        printf("Escriba la direccion y los bytes\n");
+        printf("Escriba la direccion, cont y los bytes.\n");
     }
     return 0;
 }
