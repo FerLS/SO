@@ -78,7 +78,7 @@ int main() {
     char input[MAX_INPUT_SIZE];
     char *tokens[MAX_TOKENS];
 
-    int tokenNum = 0;
+    int tokenNum;
     tList memList;
     tList histList;
     createEmptyList(&histList);
@@ -118,7 +118,5 @@ int main() {
     FreeListMem(&listas->listMem);
     free(listas);
     printf("Bye\n");
-
-
 }
 

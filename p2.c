@@ -135,6 +135,10 @@ void recurse(int n) {
         recurse(n - 1);
 }
 
+int intToAscii(int number) {
+    return '0' + number;
+}
+
 void printMemList(char *type, tList *L) {
 
     memData data;
@@ -507,6 +511,7 @@ void Do_pmap(void) /*sin argumenFtos*/
     }
     waitpid(pid, NULL, 0);
 }
+//**************************************************************************************
 
 int allocate(char *tokens[], int tokenNum, Listas L) {
 
@@ -592,16 +597,18 @@ int memdump(char *tokens[], int tokenNum, Listas L) {
 }
 
 int memfill(char *tokens[], int tokenNum, Listas L) {
-
-
     if (tokens[0] != NULL) {
-
-        unsigned char c = 65;
+        int tam,c=atoi(tokens[2]);
         void *p = (void *) strtoull(tokens[0], NULL, 16);
-        int tam = tokens[1] == NULL ? 128: atoi(tokens[1]);
+        if(tokens[1]==NULL){
+            tam=128;
+        }else{
+            tam=atoi(tokens[1]);
+        }
         LlenarMemoria(p, tam, c);
-
         printf("Llenando %d bytes de memoria con el byte %c(%d) a partir de la direccion %p\n", tam, c, c, p);
+    }else{
+        printf("Escriba la direccion y los bytes\n");
     }
     return 0;
 }
@@ -675,8 +682,6 @@ int memory(char *tokens[], int tokenNum, Listas L) {
         return 0;
 
     }
-
-
 }
 
 void FreeListMem(tList *L) {
