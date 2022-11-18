@@ -147,7 +147,7 @@ void delMemList(char *type, void *x, tList *L) {
             shmdt(((memData) getItem(p, *L))->direccion);
             deleteAtPosition(p, L);
             break;
-        } else if ((strcmp(data->type, "mmap") == 0 && atoi(x) == data->nBytes) ||
+        } else if ((strcmp(data->type, "mmap") == 0 && strcmp(data->fichero,(char*)x)==0) ||
                    (all && comp_dir(x, data->direccion))) {
 
             printf("borrado %p\n", data->fichero);
@@ -344,6 +344,8 @@ void do_DeallocateDelkey(char *tokens[]) {
     }
     if (shmctl(id, IPC_RMID, NULL) == -1)
         perror("shmctl: imposible eliminar memoria compartida\n");
+
+    printf("Se ha borrado la llave %s.\n",tokens[1]);
 }
 
 ssize_t LeerFichero(char *f, void *p, size_t cont) {

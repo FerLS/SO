@@ -232,7 +232,6 @@ int ayuda(char *tokens[], int tokenNum, Listas L) {
         }else if(strcmp(tokens[0],"deallocate")==0){
             printf("deallocate [-malloc|-shared|-delkey|-mmap|addr]..\tDesasigna un bloque de memoria\n"
                    "\t\t-malloc tam: desasigna el bloque malloc de tamano tam\n"
-                   "\t\t-malloc tam: desasigna el bloque malloc de tamano tam\n"
                    "\t\t-shared cl: desasigna (desmapea) el bloque de memoria compartida de clave cl\n"
                    "\t\t-delkey cl: elimina del sistema (sin desmapear) la clave de memoria cl\n"
                    "\t\t-mmap fich: desmapea el fichero mapeado fich\n"
