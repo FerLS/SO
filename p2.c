@@ -65,15 +65,6 @@ lo de siempre
  1 - delcaramos un array y un aaray estaticco, hacemos llamadas recurisvas
 */
 
-struct meminfo {
-    int size;
-};
-
-bool comp_size(void *data, void *extra) {
-    struct meminfo *inf = data;
-    int *size = extra;
-    return inf->size == *size;
-}
 
 bool comp_dir(void *data, void *extra) {
     return (unsigned long) extra == strtoul((char *) data, NULL, 16);
@@ -152,7 +143,7 @@ void delMemList(char *type, void *x, tList *L) {
 
             printf("borrado %p\n", data->fichero);
             free(data->fichero);
-            munmap(data->direccion, (size_t) x);
+            munmap(data->direccion, (size_t) data->nBytes);
             deleteAtPosition(p, L);
             break;
 
@@ -257,7 +248,7 @@ void do_AllocateShared(char *tokens[], tList *L) {
 
 }
 
-void *MapearFichero(char *fichero, int protection) {
+void *MapearFichero(char *fichero, int protection,char *tokens[],tList *L) {
     int df, map = MAP_PRIVATE, modo = O_RDONLY;
     struct stat s;
     void *p;
@@ -268,7 +259,16 @@ void *MapearFichero(char *fichero, int protection) {
         return NULL;
     if ((p = mmap(NULL, s.st_size, protection, map, df, 0)) == MAP_FAILED)
         return NULL;
-/* Guardar en la lista    InsertarNodoMmap (&L,p, s.st_size,df,fichero); */
+
+    printf("fichero %s mapeado en %p\n", tokens[1], p);
+    memData data = malloc(sizeof(struct structMemData));
+
+    data->direccion = p;
+    data->type = "mmap";
+    data->nBytes = s.st_size;
+    data->fichero = strdup(tokens[1]);
+    data->time = time(NULL);
+    insertItem(data, NULL, L);
     return p;
 }
 
@@ -286,19 +286,8 @@ void do_AllocateMmap(char *tokens[], tList *L) {
         if (strchr(perm, 'w') != NULL) protection |= PROT_WRITE;
         if (strchr(perm, 'x') != NULL) protection |= PROT_EXEC;
     }
-    if ((p = MapearFichero(tokens[1], protection)) == NULL)
+    if ((p = MapearFichero(tokens[1], protection,tokens,L)) == NULL){
         perror("Imposible mapear fichero");
-    else {
-
-        printf("fichero %s mapeado en %p\n", tokens[1], p);
-        memData data = malloc(sizeof(struct structMemData));
-
-        data->direccion = p;
-        data->type = "mmap";
-        data->nBytes = 1;
-        data->fichero = strdup(tokens[1]);
-        data->time = time(NULL);
-        insertItem(data, NULL, L);
     }
 
 
