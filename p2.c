@@ -7,106 +7,62 @@
 
 /*
 // ALLOCATE
-
  //-malloc
 lo de siempre
 //-share && createshared
-
  1 - int ID =  shm get(clave(atoi para hacela int),tamaño de la zona compartida,IPC_CREAT(create share,porque la estamos creando),
  2 - void *PTR SHM AT(ID,NULL,flags para solo lectura o tal (0 para lectura y escritura) //Puntero a la zona compartida
-
  // -mmap
-
  0 - int FD = OPEN(...);
  1 - mmap(NULL(elegie el kernel),parte de longitud del fichero que queremos ver,flags para leer o escribir y tal,flags para otras cosas(MAP_SHARED),FD,offest donde empezar a leer);
-
-
-
-
 //DEALLOCATE
-
-
  * necsitamos guarda en una estrucura los allocate
  convertir lista a generica (puntero a void);
  crear estructira de bloque(guardar tipo de allocate para despues)
     Time_T Tim = TIME(NULL);
-
     //-malloc
     free
     //shared
-
     SHMDT(void *K)
-
     //-mmap
     munmap(void *,length)
-
     //Direccion de memoria
-
     buscar en lista y liberarla segun TIPO,
     tenemos que convertir el string de direccion de memeoria a puntero
     a un unsignedlong
     void *ptr = (void*) STRTOUL(string,NULL(donde eempieza otra cosa que no es el numero),16(base hexadecimal);
-
 //I-O
-
  converitmos como antes y leemos o escribimos
-
 //MEMDUMP
-
  Imprime los n bytes de un direccion de memoria
  printf como caracter y numero
-
-
 //MEMFILL
-
  escribit un caracter(en codigo ascci) en una posicion de memoria n veces
-
 //MEMORY
-
  //-blocks
  imprimir infomacion de la lista de allocate
-
  //-funcs
-
  printf("%p",AUTORES); //elegimos 3 de liberia y 3 nuestras
  Las direccion cambian siempre por seguridad
-
  lirbreira > programe
-
  //-vars
-
  Imprime la direccion de 3 vairbales globales y tres estaticas (no usamos las globales xd)
-
  locales > globales == estatica en direccion de memotria
-
-
  //-all
-
  tod o lo de antes
-
  //-pmap
-
  imirpime la memoria al reves por alguna razon xd
-
  asi es normal
-
  kernel
  stack
-
  break(muchas cosas)
-
  heap
  data
  codigo
-
  a bueno que ya esta hecho menos mal xd
-
 //RECURSE
-
  imprime recursivemente direacicones de  memoria del parametro que pasamos
-
  1 - delcaramos un array y un aaray estaticco, hacemos llamadas recurisvas
-
 */
 
 struct meminfo {
@@ -214,8 +170,7 @@ void delMemList(char *type, void *x, tList *L) {
 void LlenarMemoria(void *p, size_t cont, unsigned char byte) {
     unsigned char *arr = (unsigned char *) p;
     size_t i;
-    size_t n = sizeof(&arr)/sizeof(arr[0]);
-    for (i = 0; i < cont && i < n; i++)
+    for (i = 0; i < cont; i++)
         arr[i] = byte;
 }
 
@@ -465,7 +420,7 @@ void do_I_O_write(char *tokens[]) {
         cont = (size_t) atoll(tokens[3 + o]);
 
     if ((n = EscribirFichero(tokens[1 + o], p, cont, o)) == -1)
-        perror("Imposible leer fichero");
+        perror("Imposible escribir fichero");
     else
         printf("escritos %lld bytes en %s desde %p\n", (long long) n, tokens[1 + o], p);
 
@@ -575,19 +530,24 @@ int memdump(char *tokens[], int tokenNum, Listas L) {
     void *p;
     int n;
     if (tokens[0] != NULL) {
-        
+
+
       //si el n que pasas es -1 tiene que leer todo el bloque(no vale usar la lista)
         unsigned long ul = strtoul(tokens[0], NULL, 16);
         if (ul <= 0) return 0;
         p = (void *) ul;
         n = tokens[1] == NULL ? 25 : atoi(tokens[1]);
 
+        unsigned char *arr = (unsigned char *) p;
+
+        n = n == -1 ? sizeof(&arr)/sizeof(arr[0]) : n;
+
         for (int i = 0; i < n; ++i) {
-            printf("%c ", *(char *) (p + 1));
+            printf("%c ",arr[i]);
         }
         printf("\n");
         for (int j = 0; j < n; ++j) {
-            printf("%2x ", *(char *) (p + 1));
+            printf("%02x ", arr[j]);
         }
         printf("\n");
     }
@@ -599,7 +559,7 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
     if (tokens[0] != NULL) {
         int tam,c;
         void *p = (void *) strtoull(tokens[0], NULL, 16);
-            if (tokens[1] == NULL) {
+            if (tokens[1] == NULL || tokens[2] == NULL) {
                 tam = 128;
                 c = 65;
             } else {
