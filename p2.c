@@ -532,7 +532,7 @@ int memdump(char *tokens[], int tokenNum, Listas L) {
     if (tokens[0] != NULL) {
 
 
-      //si el n que pasas es -1 tiene que leer todo el bloque(no vale usar la lista)
+        //si el n que pasas es -1 tiene que leer todo el bloque(no vale usar la lista)
         unsigned long ul = strtoul(tokens[0], NULL, 16);
         if (ul <= 0) return 0;
         p = (void *) ul;
@@ -540,10 +540,13 @@ int memdump(char *tokens[], int tokenNum, Listas L) {
 
         unsigned char *arr = (unsigned char *) p;
 
-        n = n == -1 ? sizeof(&arr)/sizeof(arr[0]) : n;
+        if (n < 0) {
+            printf("Introduce un numero mayor a 0!\n");
+            return 0;
+        }
 
         for (int i = 0; i < n; ++i) {
-            printf("%c ",arr[i]);
+            printf("%c ", arr[i]);
         }
         printf("\n");
         for (int j = 0; j < n; ++j) {
@@ -557,18 +560,20 @@ int memdump(char *tokens[], int tokenNum, Listas L) {
 
 int memfill(char *tokens[], int tokenNum, Listas L) {
     if (tokens[0] != NULL) {
-        int tam,c;
+        int tam, c;
         void *p = (void *) strtoull(tokens[0], NULL, 16);
-            if (tokens[1] == NULL || tokens[2] == NULL) {
-                tam = 128;
-                c = 65;
-            } else {
-                tam = atoi(tokens[1]);
-                c = atoi(tokens[2]);
-            }
-            LlenarMemoria(p, tam, c);
-            printf("Llenando %d bytes de memoria con el byte %c(%02X) a partir de la direccion %p\n", tam, c,c , p);
-    }else{
+
+
+        tam =tokens[1] == NULL ? 128: atoi(tokens[1]);
+        c = tokens[2] == NULL ? 65 :  atoi(tokens[2]);
+
+        if (tam  < 0 || c < 0) {
+            printf("Introduce un numero mayor a 0!\n");
+            return 0;
+        }
+        LlenarMemoria(p, tam, c);
+        printf("Llenando %d bytes de memoria con el byte %c(%02X) a partir de la direccion %p\n", tam, c, c, p);
+    } else {
         printf("Escriba la direccion, cont y los bytes.\n");
     }
     return 0;
@@ -585,7 +590,9 @@ int io(char *tokens[], int tokenNum, Listas L) {
         } else {
 
             printf("Parametro invalido\n");
+
         }
+
 
     } else {
         printf("Faltan parametros\n");
