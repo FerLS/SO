@@ -8,7 +8,7 @@ int priority(char *tokens[], int tokenNum, Listas L){
         if(tokenNum==2){
             prioridad = getpriority(PRIO_PROCESS,pid);
         }else{
-            prioridad = getpid();
+            prioridad = atoi(tokens[1]);
             setpriority(PRIO_PROCESS, pid, prioridad);
         }
     }else{
