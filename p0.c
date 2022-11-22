@@ -288,7 +288,7 @@ int ayuda(char *tokens[], int tokenNum, Listas L) {
                 "delete name1 name2 ..\n deltree name1 name2 ..\n"
                 " allocate [-malloc|-shared|-createshared|-mmap]\n deallocate [-malloc|-shared|-delkey|-mmap|addr]\n i-o [read|write] [-o]\n"
                 " memdump\n memfill\n memory\n recurse\n priority\n showvar\n changevar\n showenv\n fork\n execute\n listjobs\n"
-                " deljobs\n job\n *****");
+                " deljobs\n job\n *****\n");
     } else {
         printf("Comando no encontrado\n");
 
