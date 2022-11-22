@@ -1,3 +1,6 @@
+//Fernando Alvarez Legisima fernando.alvarezr@udc.es
+//Brais Sanchez Ferreiro brais.sferreiro@udc.es
+
 #ifndef PRACTICA1_P1_H
 #define PRACTICA1_P1_H
 #include "headers.h"

@@ -1,7 +1,5 @@
-//
-// Created by fer on 14/10/22.
-//
-
+//Fernando Alvarez Legisima fernando.alvarezr@udc.es
+//Brais Sanchez Ferreiro brais.sferreiro@udc.es
 
 #include "p0.h"
 struct utsname unameData;

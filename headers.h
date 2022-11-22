@@ -1,3 +1,6 @@
+//Fernando Alvarez Legisima fernando.alvarezr@udc.es
+//Brais Sanchez Ferreiro brais.sferreiro@udc.es
+
 #ifndef PRACTICA1_HEADERS_H
 #define PRACTICA1_HEADERS_H
 

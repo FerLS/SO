@@ -1,6 +1,8 @@
+//Fernando Alvarez Legisima fernando.alvarezr@udc.es
+//Brais Sanchez Ferreiro brais.sferreiro@udc.es
+
 #include "p2.h"
 #include "p0.h"
-
 
 bool comp_dir(void *data, void *extra) {
     return (unsigned long) extra == strtoul((char *) data, NULL, 16);

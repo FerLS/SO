@@ -1,3 +1,6 @@
+//Fernando Alvarez Legisima fernando.alvarezr@udc.es
+//Brais Sanchez Ferreiro brais.sferreiro@udc.es
+
 #include "p0.h"
 #include "p3.h"
 
