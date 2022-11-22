@@ -4,6 +4,7 @@
 #include "p0.h"
 #include "p1.h"
 #include "p2.h"
+#include "p3.h"
 
 
 int split_string(char *cadena, char *trozos[]) {
@@ -41,6 +42,15 @@ struct cmd {
         {"memory", memory},
         {"recurse",recursiva},
         {"i-o",io},
+        {"priority",priority},
+        {"showvar",showvar},
+        {"changevar",changevar},
+        {"showenv",showenv},
+        {"fork",fork1},
+        {"execute",execute},
+        {"listjobs",listjobs},
+        {"deljobs",deljobs},
+        {"job",job},
         {NULL, NULL}
 };
 

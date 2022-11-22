@@ -1,16 +1,10 @@
-//
-// Created by fer on 14/10/22.
-//
-
 #ifndef PRACTICA1_P1_H
 #define PRACTICA1_P1_H
 #include "headers.h"
 
 #define MAX_PATH 1000
 
-
 struct statParms{
-
     bool lonng;
     bool link;
     bool acc;
@@ -18,10 +12,7 @@ struct statParms{
     bool reca;
     bool recb;
     bool hid;
-
 };
-
-
 
 char LetraTF(mode_t m);
 char *ConvierteModo(mode_t m) ;
@@ -42,4 +33,5 @@ int delete(char *tokens[], int tokenNum,Listas L) ;
 int stats(char *tokens[], int tokenNum,Listas L) ;
 
 int list(char *tokens[], int tokenNum,Listas L);
+
 #endif //PRACTICA1_P1_H

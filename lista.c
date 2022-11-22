@@ -1,5 +1,3 @@
-
-
 #include "lista.h"
 
 void createEmptyList(tList *L) {
@@ -41,6 +39,7 @@ tPosL previous(tPosL p, tList L) {
 
     }
 }
+
 tPosL next(tPosL p, tList L) {
 
     return p->next;
@@ -62,7 +61,8 @@ tPosL findItem(tList L, bool (*prop)(void *elem, void *), void *extra) {
         p = LNULL;
     } else {
 
-        for (p = L; p != LNULL &&  !prop(p->data, extra); p = p->next); //Esto esta mal ya que el identificador es igual, habria que inventarse in id
+        for (p = L; p != LNULL && !prop(p->data,
+                                        extra); p = p->next); //Esto esta mal ya que el identificador es igual, habria que inventarse in id
     }
     return p;
 
@@ -124,7 +124,7 @@ void deleteAtPosition(tPosL p, tList *L) {
         p->next = q->next;
         p = q;
     }
-    free(getItem(p,*L));
+    free(getItem(p, *L));
     free(p);
 
 }
@@ -135,19 +135,19 @@ void deleteList(tList *L) {
     while (*L != LNULL) {
         p = *L;
         *L = (*L)->next;
-        free(getItem(p,*L));
+        free(getItem(p, *L));
         free(p);
 
     }
 }
 
-int sizeList(tList *L){
+int sizeList(tList *L) {
 
     int size = 0;
     tPosL p;
-    if(!isEmptyList(*L)){
+    if (!isEmptyList(*L)) {
         p = *L;
-        while (p != LNULL){
+        while (p != LNULL) {
 
             p = p->next;
             size++;

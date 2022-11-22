@@ -1,10 +1,5 @@
-//
-// Created by fer on 18/10/22.
-//
-
 #ifndef PRACTICA1_HEADERS_H
 #define PRACTICA1_HEADERS_H
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,12 +18,11 @@
 #include "lista.h"
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/resource.h>
 #endif //PRACTICA1_HEADERS_H
 
 #define MAX_INPUT_SIZE 1024
 #define MAX_TOKENS 64
-
-
 
 int split_string(char *cadena, char *trozos[]);
 

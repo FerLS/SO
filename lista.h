@@ -1,4 +1,3 @@
-
 #ifndef PRACTICA1_LISTA_H
 #define PRACTICA1_LISTA_H
 
@@ -7,9 +6,6 @@
 #include <stdlib.h>
 
 #define LNULL NULL
-
-
-
 
 struct struchistData{
     char comando[1024];
@@ -23,7 +19,6 @@ struct structMemData{
     char *type;
     char* fichero;
     key_t key;
-
 };
 
 typedef struct struchistData *histData;
@@ -33,25 +28,20 @@ typedef void *tItemL;
 typedef struct Node *tPosL;
 
 struct Node {
-
     tItemL data;
     tPosL next;
-
 };
-
 
 typedef tPosL tList;
 
 struct structListas{
-
     tList listHist;
     tList listMem;
-
 };
 
 typedef struct structListas *Listas;
-//Operaciones
 
+//Operaciones
 void createEmptyList(tList *L);
 
 bool isEmptyList(tList L);

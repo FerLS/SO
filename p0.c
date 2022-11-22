@@ -254,9 +254,31 @@ int ayuda(char *tokens[], int tokenNum, Listas L) {
                    "\t\t-pmap: muestra la salida del comando pmap(o similar)\n");
         }else if(strcmp(tokens[0],"recurse")==0){
             printf("recurse [n]\tInvoca a la funcion recursiva n veces\n");
-        }
-
-        else{
+        }else if(strcmp(tokens[0],"priority")==0){
+            printf("priority [pid] [valor] \tMuestra o cambia la prioridad del proceso pid a valor\n");
+        }else if(strcmp(tokens[0],"showvar")==0){
+            printf("showvar var1\tMuestra el valor y las direcciones de la variable de entorno var\n");
+        }if(strcmp(tokens[0],"changevar")==0){
+            printf("changevar [-a|-e|-p] var valor\tCambia el valor de una variable de entorno\n"
+                   "\t-a: accede por el tercer arg de main\n"
+                   "\t-e: accede mediante environ\n"
+                   "\t-p: accede mediante putenv\n");
+        }if(strcmp(tokens[0],"showenv")==0){
+            printf("showenv [-environ|-addr] \t Muestra el entorno del proceso\n");
+        }if(strcmp(tokens[0],"fork")==0){
+            printf("fork \tHace una llamada fork para crear un proceso\n");
+        }if(strcmp(tokens[0],"execute")==0){
+            printf("execute prog args....\tEjecuta, sin crear proceso,prog con argumentos\n");
+        }if(strcmp(tokens[0],"listjobs")==0){
+            printf("listjobs \tLista los procesos en segundo plano\n");
+        }if(strcmp(tokens[0],"deljobs")==0){
+            printf("deljobs [-term][-sig]\tElimina los procesos de la lista procesos en sp\n"
+                   "\t-term: los terminados\n"
+                   "\t-sig: los terminados por senal");
+        }if(strcmp(tokens[0],"job")==0){
+            printf("job [-fg] pid\tMuestra informacion del proceso pid.\n"
+                   "\t-fg: lo pasa a primer plano");
+        }else{
             printf("Ese comando no existe\n");
 
         }
@@ -267,7 +289,8 @@ int ayuda(char *tokens[], int tokenNum, Listas L) {
                 " create [-f] \n stat[-long][-link][-acc] archivo1 archivo2 ... \n list [-reca] [-recb] [-hid][-long][-link][-acc]\n "
                 "delete name1 name2 ..\n deltree name1 name2 ..\n"
                 " allocate [-malloc|-shared|-createshared|-mmap]\n deallocate [-malloc|-shared|-delkey|-mmap|addr]\n i-o [read|write] [-o]\n"
-                " memdump\n memfill\n memory\n recurse \n");
+                " memdump\n memfill\n memory\n recurse\n priority\n showvar\n changevar\n showenv\n fork\n execute\n listjobs\n"
+                " deljobs\n job\n *****");
     } else {
         printf("Comando no encontrado\n");
 
