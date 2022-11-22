@@ -15,7 +15,7 @@ int priority(char *tokens[], int tokenNum, Listas L){
         pid=getpid();
         prioridad= getpriority(PRIO_PROCESS, pid);
     }
-    printf("El proceso %d tiene prioridad %d.\n",pid,prioridad);
+    printf("Prioridad del proceso %d es %d.\n",pid,prioridad);
     return 0;
 }
 
