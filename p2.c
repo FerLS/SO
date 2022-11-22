@@ -138,7 +138,7 @@ void delMemList(char *type, void *x, tList *L) {
             shmdt(((memData) getItem(p, *L))->direccion);
             deleteAtPosition(p, L);
             break;
-        } else if ((strcmp(data->type, "mmap") == 0 && strcmp(data->fichero,(char*)x)==0) ||
+        } else if ((strcmp(data->type, "mmap") == 0 && strcmp(data->fichero, (char *) x) == 0) ||
                    (all && comp_dir(x, data->direccion))) {
 
             printf("borrado %p\n", data->fichero);
@@ -248,7 +248,7 @@ void do_AllocateShared(char *tokens[], tList *L) {
 
 }
 
-void *MapearFichero(char *fichero, int protection,char *tokens[],tList *L) {
+void *MapearFichero(char *fichero, int protection, char *tokens[], tList *L) {
     int df, map = MAP_PRIVATE, modo = O_RDONLY;
     struct stat s;
     void *p;
@@ -286,7 +286,7 @@ void do_AllocateMmap(char *tokens[], tList *L) {
         if (strchr(perm, 'w') != NULL) protection |= PROT_WRITE;
         if (strchr(perm, 'x') != NULL) protection |= PROT_EXEC;
     }
-    if ((p = MapearFichero(tokens[1], protection,tokens,L)) == NULL){
+    if ((p = MapearFichero(tokens[1], protection, tokens, L)) == NULL) {
         perror("Imposible mapear fichero");
     }
 
@@ -334,7 +334,7 @@ void do_DeallocateDelkey(char *tokens[]) {
     if (shmctl(id, IPC_RMID, NULL) == -1)
         perror("shmctl: imposible eliminar memoria compartida\n");
 
-    printf("Se ha borrado la llave %s.\n",tokens[1]);
+    printf("Se ha borrado la llave %s.\n", tokens[1]);
 }
 
 ssize_t LeerFichero(char *f, void *p, size_t cont) {
@@ -555,10 +555,10 @@ int memfill(char *tokens[], int tokenNum, Listas L) {
         void *p = (void *) strtoull(tokens[0], NULL, 16);
 
 
-        tam =tokens[1] == NULL ? 128: atoi(tokens[1]);
-        c = tokens[2] == NULL ? 65 :  atoi(tokens[2]);
+        tam = tokens[1] == NULL ? 128 : atoi(tokens[1]);
+        c = tokens[2] == NULL ? 65 : atoi(tokens[2]);
 
-        if (tam  < 0 || c < 0) {
+        if (tam < 0 || c < 0) {
             printf("Introduce un numero mayor a 0!\n");
             return 0;
         }
