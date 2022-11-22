@@ -258,29 +258,29 @@ int ayuda(char *tokens[], int tokenNum, Listas L) {
             printf("priority [pid] [valor] \tMuestra o cambia la prioridad del proceso pid a valor\n");
         }else if(strcmp(tokens[0],"showvar")==0){
             printf("showvar var1\tMuestra el valor y las direcciones de la variable de entorno var\n");
-        }if(strcmp(tokens[0],"changevar")==0){
+        }else if(strcmp(tokens[0],"changevar")==0){
             printf("changevar [-a|-e|-p] var valor\tCambia el valor de una variable de entorno\n"
                    "\t-a: accede por el tercer arg de main\n"
                    "\t-e: accede mediante environ\n"
                    "\t-p: accede mediante putenv\n");
-        }if(strcmp(tokens[0],"showenv")==0){
+        }else if(strcmp(tokens[0],"showenv")==0){
             printf("showenv [-environ|-addr] \t Muestra el entorno del proceso\n");
-        }if(strcmp(tokens[0],"fork")==0){
+        }else if(strcmp(tokens[0],"fork")==0){
             printf("fork \tHace una llamada fork para crear un proceso\n");
-        }if(strcmp(tokens[0],"execute")==0){
+        }else if(strcmp(tokens[0],"execute")==0){
             printf("execute prog args....\tEjecuta, sin crear proceso,prog con argumentos\n");
-        }if(strcmp(tokens[0],"listjobs")==0){
+        }else if(strcmp(tokens[0],"listjobs")==0){
             printf("listjobs \tLista los procesos en segundo plano\n");
-        }if(strcmp(tokens[0],"deljobs")==0){
+        }else if(strcmp(tokens[0],"deljobs")==0){
             printf("deljobs [-term][-sig]\tElimina los procesos de la lista procesos en sp\n"
                    "\t-term: los terminados\n"
                    "\t-sig: los terminados por senal");
-        }if(strcmp(tokens[0],"job")==0){
+        }else if(strcmp(tokens[0],"job")==0){
             printf("job [-fg] pid\tMuestra informacion del proceso pid.\n"
                    "\t-fg: lo pasa a primer plano");
-        }else{
+        }
+        else{
             printf("Ese comando no existe\n");
-
         }
     } else if (tokenNum == 1) {
         printf(
