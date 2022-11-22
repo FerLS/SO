@@ -16,36 +16,45 @@ int priority(char *tokens[], int tokenNum, Listas L){
         prioridad= getpriority(PRIO_PROCESS, pid);
     }
     printf("El proceso %d tiene prioridad %d.\n",pid,prioridad);
+    return 0;
 }
 
 int showvar(char *tokens[], int tokenNum, Listas L){
 
+    return 0;
 }
 
 int changevar(char *tokens[], int tokenNum, Listas L){
 
+    return 0;
 }
 
 int showenv(char *tokens[], int tokenNum, Listas L){
 
+    return 0;
 }
 
 int fork1(char *tokens[], int tokenNum, Listas L){
 
+    return 0;
 }
 
 int execute(char *tokens[], int tokenNum, Listas L){
 
+    return 0;
 }
 
 int listjobs(char *tokens[], int tokenNum, Listas L){
 
+    return 0;
 }
 
 int deljobs(char *tokens[], int tokenNum, Listas L){
 
+    return 0;
 }
 
 int job(char *tokens[], int tokenNum, Listas L){
 
+    return 0;
 }
