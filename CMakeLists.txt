@@ -8,4 +8,4 @@ include_directories(.)
 add_executable(Practica1
         lista.c
         lista.h
-        main.c p0.c p0.h  p1.c p1.h headers.h p2.c p2.h)
+        main.c p0.c p0.h  p1.c p1.h headers.h p2.c p2.h p3.c p3.h)
