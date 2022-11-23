@@ -10,9 +10,12 @@ int priority(char *tokens[], int tokenNum, Listas L){
         pid=atoi(tokens[0]);
         if(tokenNum==2){
             prioridad = getpriority(PRIO_PROCESS,pid);
+
         }else{
             prioridad = atoi(tokens[1]);
-            setpriority(PRIO_PROCESS, pid, prioridad);
+            if(setpriority(PRIO_PROCESS, pid, prioridad)==-1){
+                perror("No se pudo cambiar la prioridad.\n");
+            }
         }
     }else{
         pid=getpid();
@@ -23,6 +26,7 @@ int priority(char *tokens[], int tokenNum, Listas L){
 }
 
 int showvar(char *tokens[], int tokenNum, Listas L){
+    int pos;
 
     return 0;
 }
