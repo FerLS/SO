@@ -20,9 +20,13 @@ struct structMemData{
     char* fichero;
     key_t key;
 };
+struct structProcData{
+
+};
 
 typedef struct struchistData *histData;
 typedef struct structMemData *memData;
+typedef struct structProcData *procData;
 
 typedef void *tItemL;
 typedef struct Node *tPosL;
@@ -37,6 +41,7 @@ typedef tPosL tList;
 struct structListas{
     tList listHist;
     tList listMem;
+    tList listProc;
 };
 
 typedef struct structListas *Listas;
