@@ -4,8 +4,6 @@
 #include "p0.h"
 #include "p1.h"
 #include "p2.h"
-#include "p3.h"
-
 
 
 int split_string(char *cadena, char *trozos[]) {
@@ -23,35 +21,26 @@ struct cmd {
 
     int (*cmd_fun)(char *tokens[], int tokenNum, Listas L);
 } cmds[] = {
-        {"autores",    autores},
-        {"pid",        pid},
-        {"carpeta",    carpeta},
-        {"fecha",      fecha},
-        {"hist",       hist},
-        {"comando",    comando},
-        {"infosis",    infosis},
-        {"ayuda",      ayuda},
-        {"create",     create},
-        {"deltree",    deltree},
-        {"delete",     delete},
-        {"stat",       stats},
-        {"list",       list},
-        {"allocate",   allocate},
-        {"deallocate", deallocate},
-        {"memdump",    memdump},
-        {"memfill",    memfill},
-        {"memory",     memory},
-        {"recurse",    recursiva},
-        {"i-o",        io},
-        {"priority",   priority},
-        {"showvar",    showvar},
-        {"changevar",  changevar},
-        {"showenv",    showenv},
-        {"fork",       fork1},
-        {"execute",    execute},
-        {"listjobs",   listjobs},
-        {"deljobs",    deljobs},
-        {"job",        job},
+        {"autores", autores},
+        {"pid",     pid},
+        {"carpeta", carpeta},
+        {"fecha",   fecha},
+        {"hist",    hist},
+        {"comando", comando},
+        {"infosis", infosis},
+        {"ayuda",   ayuda},
+        {"create",  create},
+        {"deltree", deltree},
+        {"delete",  delete},
+        {"stat",    stats},
+        {"list",    list},
+        {"allocate",    allocate},
+        {"deallocate",    deallocate},
+        {"memdump", memdump},
+        {"memfill", memfill},
+        {"memory", memory},
+        {"recurse",recursiva},
+        {"i-o",io},
         {NULL, NULL}
 };
 
@@ -76,16 +65,15 @@ int process_input(char *tokens[], int tokenNum, Listas L) {
 
 void UpdateList(char input[], tList *L) {
 
-    histData item = malloc(sizeof(struct struchistData));
+    histData item = malloc(sizeof (struct struchistData));
     strcpy(item->comando, input);
-    item->idCounter = isEmptyList(*L) ? 0 : ((histData) getItem(last(*L), *L))->idCounter + 1;
+    item->idCounter = isEmptyList(*L) ? 0 : ((histData)getItem(last(*L), *L))->idCounter + 1;
     if (!insertItem(item, NULL, L)) {
         printf("No se pudo pibe.");
-
     }
 }
 
-int main(int argc, char *argv[]) {
+int main() {
 
     char input[MAX_INPUT_SIZE];
     char *tokens[MAX_TOKENS];
@@ -93,16 +81,13 @@ int main(int argc, char *argv[]) {
     int tokenNum;
     tList memList;
     tList histList;
-    tList procList;
     createEmptyList(&histList);
     createEmptyList(&memList);
-    createEmptyList(&procList);
 
     Listas listas = malloc(sizeof(struct structListas));
 
     listas->listHist = histList;
     listas->listMem = memList;
-    listas->listProc = procList;
 
     while (1) {
         printf("\033[1;33m");
@@ -124,13 +109,12 @@ int main(int argc, char *argv[]) {
             }
         } else {
             printf("Comando no valido\n");
-
+            
         }
 
     }
 
     deleteList(&listas->listHist);
-    deleteList(&listas->listProc);
     FreeListMem(&listas->listMem);
     free(listas);
     printf("Bye\n");

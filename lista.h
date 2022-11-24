@@ -22,6 +22,11 @@ struct structMemData{
 };
 struct structProcData{
 
+    int pid;
+    time_t data;
+    int priority;
+    char* commandL;
+
 };
 
 typedef struct struchistData *histData;

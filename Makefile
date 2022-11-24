@@ -1,4 +1,4 @@
-EXECUTABLE=shell
+EXECUTABLE=p2
 CFLAGS= -Wall -g
 
 shell.o: main.c

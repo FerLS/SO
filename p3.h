@@ -24,4 +24,6 @@ int deljobs(char *tokens[], int tokenNum, Listas L);
 
 int job(char *tokens[], int tokenNum, Listas L);
 
+
+
 #endif //PRACTICA1_P3_H
