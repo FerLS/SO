@@ -49,6 +49,81 @@ Kill -term pid // kill -stop pid
 Kill -kill pid // kill -cont pid
 */
 
+//_----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+/*
+ *  Priority
+ *
+ *      GetPrority(PRIO_PROCESS,pid);
+ *      SetPrirority(PRIO_PROCESS,pid,prioridad);   => nice [-19,19]
+ *
+ *  Showvar
+ *
+ *      ENV:
+ *      char*  getenv(char *var)
+ *             setenv(char *var,char * value,int overwrite(a 1))
+ *      ENVIRON:
+ *      extern char **environ(definir arriba)
+ *      environ[0] = "path= ..."
+ *      usar la funcion que nos dan
+ *
+ *      INT MAIN(INT ARGC,CHAR *ARGV[],char **env) usar el tercero
+ *
+ *  Fork
+ *
+ *     pid_t pid = fork(); => 2 procesos
+ *      if(pid < 0) //ERROR
+ *          perror();
+ *      else if(pid == 0) //en el nuevo proceso
+ *          Nada
+ *      else //en el original
+ *          WAITPID(pid,NULL,0); //espera a que termine
+ *
+ *      //si sale bien deberiamos de hacer 2 bye
+ *
+ *  Execute
+ *
+ *      char *args[] => {"ls","-l",NULL}
+ *      EXECVPE(args[0],args,environ} podemos meter tokens +1
+ *      perror()
+ *      #define _GNU_SOURCE
+ *
+ *  ******
+ *
+ *      if(pid = fork() == 0)
+ *          ejecutar();
+ *          exit(0)
+ *      else
+ *
+ *          waitpid(pid,null,0) //primer plano
+ *
+ *  deljob y listjob y job
+ *
+ *      int status ;
+ *      if(pid == waitpid(pid,&status,WNDHANG))    //NO BLOQUO
+ *      waitpid(pid,&status,WUNTRACED)    //INFORMAR STOP
+ *      waitpid(pid,&status,WCONTINUED)    //CUANDO REANUDA
+ *
+ *      if(WIFEXITED(status))
+ *          // termino normal
+ *          WEXIT(status)
+ *      else if(WIFSIGNALED(status))
+ *          //muerto por señal
+ *          int SIG = WTERMSIG(status);
+ *
+ *      //deljobs
+ *
+ *          kill -term pid
+ *          killl -kill pid
+ *
+ *          kill -stop pid
+ *          kill -cont pid
+ *
+ *
+ * */
+
+
 #include "p0.h"
 #include "p3.h"
 
@@ -77,19 +152,20 @@ void MuestraEntorno(char **entorno, char *nombre_entorno) {
     }
 }
 
-int CambiarVariable(char * var, char * valor, char *e[]){/*cambia una variable en el entorno que se le pasa como parámetro,lo hace directamente, no usa putenv*/
+int CambiarVariable(char *var, char *valor,
+                    char *e[]) {/*cambia una variable en el entorno que se le pasa como parámetro,lo hace directamente, no usa putenv*/
     int pos;
     char *aux;
 
-    if ((pos=BuscarVariable(var,e))==-1)
-        return(-1);
+    if ((pos = BuscarVariable(var, e)) == -1)
+        return (-1);
 
-    if ((aux=(char *)malloc(strlen(var)+strlen(valor)+2))==NULL)
+    if ((aux = (char *) malloc(strlen(var) + strlen(valor) + 2)) == NULL)
         return -1;
-    strcpy(aux,var);
-    strcat(aux,"=");
-    strcat(aux,valor);
-    e[pos]=aux;
+    strcpy(aux, var);
+    strcat(aux, "=");
+    strcat(aux, valor);
+    e[pos] = aux;
     return (pos);
 }
 
@@ -120,7 +196,7 @@ int showvar(char *tokens[], int tokenNum, Listas L) {
     int i;
     if (tokenNum != 0 && tokens[0] != NULL) {
         if ((i = BuscarVariable(tokens[0], __environ)) != -1) {
-            printf(MAGENTA"Con arg3 main %s(%p) @%p\n", __environ[i], __environ[i],&__environ[i]);
+            printf(MAGENTA"Con arg3 main %s(%p) @%p\n", __environ[i], __environ[i], &__environ[i]);
             printf("Con environ %s(%p) @%p\n", __environ[i], __environ[i], &__environ[i]);
             printf("Con getenv %s(%p)\n", getenv(tokens[0]), &__environ[i]);
         } else {
@@ -133,22 +209,22 @@ int showvar(char *tokens[], int tokenNum, Listas L) {
 }
 
 int changevar(char *tokens[], int tokenNum, Listas L) {
-    char *aux=malloc(100);
-    if(tokenNum!=1){
-        if(tokenNum==3){
-            if(strcmp(tokens[0],"-a")==0){
-                CambiarVariable(tokens[1],tokens[2],__environ);
-            }else if(strcmp(tokens[0],"-e")==0){
-                CambiarVariable(tokens[1],tokens[2],__environ);
-            }else if(strcmp(tokens[0],"-p")==0){
-                strcpy(aux,tokens[1]);
-                strcat(aux,"=");
-                strcat(aux,tokens[2]);
+    char *aux = malloc(100);
+    if (tokenNum != 1) {
+        if (tokenNum == 3) {
+            if (strcmp(tokens[0], "-a") == 0) {
+                CambiarVariable(tokens[1], tokens[2], __environ);
+            } else if (strcmp(tokens[0], "-e") == 0) {
+                CambiarVariable(tokens[1], tokens[2], __environ);
+            } else if (strcmp(tokens[0], "-p") == 0) {
+                strcpy(aux, tokens[1]);
+                strcat(aux, "=");
+                strcat(aux, tokens[2]);
                 putenv(aux);
             }
-            printf(MAGENTA"Se ha cambiado la variable de entorno %s\n",tokens[1]);
+            printf(MAGENTA"Se ha cambiado la variable de entorno %s\n", tokens[1]);
         }
-    }else{
+    } else {
         printf(CYAN"Uso: cambiarvar [-a|-e|-p] var valor\n");
     }
     return 0;
@@ -185,7 +261,7 @@ int fork1(char *tokens[], int tokenNum, Listas L) {
     if (pid < 0) {
         perror("Error");
     } else if (pid != 0) {
-        printf("ejecutando proceso %d\n",pid);
+        printf("ejecutando proceso %d\n", pid);
         waitpid(pid, NULL, 0);
     }
 
@@ -194,6 +270,8 @@ int fork1(char *tokens[], int tokenNum, Listas L) {
 
 int execute(char *tokens[], int tokenNum, Listas L) {
 
+    execvpe(tokens[0], tokens, environ);
+    perror(RED"Error");
     return 0;
 }
 
@@ -209,6 +287,21 @@ int deljobs(char *tokens[], int tokenNum, Listas L) {
 
 int job(char *tokens[], int tokenNum, Listas L) {
 
+
+    return 0;
+}
+
+int program(char *tokens[], int tokenNum, Listas L) {
+
+
+    pid_t pid;
+    if ((pid = fork()) == 0) {
+        execute(tokens, tokenNum, L);
+        exit(0);
+    } else {
+        waitpid(pid, NULL, 0);
+
+    }
 
     return 0;
 }

@@ -70,7 +70,7 @@ int process_input(char *tokens[], int tokenNum, Listas L) {
         return 0;
     }
 
-    printf("Comando no encontrado\n");
+    program(tokens,tokenNum,L);
     return 0;
 }
 
