@@ -1,14 +1,61 @@
 //Fernando Alvarez Legisima fernando.alvarezr@udc.es
 //Brais Sanchez Ferreiro brais.sferreiro@udc.es
 
+/*
+Priority-> getpriority(flag PRIO_PROCESS, int pid);
+           setpriority(flag PRIO_PROCESS, int pid, int prioridad); Nice->(-19,19)
+-------------------------------------------------------------------------------------
+Showvar      -> 1:getenv(char *var);
+Showenv           setenv(char *var, char *valor, int overwrite);
+Changevar       2:extern char **environ;
+                  environ[0] -> "PATH=...."
+                3:int main(int argc, char *argv[], char **env);
+-------------------------------------------------------------------------------------
+Fork -> pid_t fork();
+    if(pid<0){
+    perror();
+    }else if(pid==0){ //Nuevo
+
+    }else{
+        waitpid(int pid, NULL, 0); //Espera a que termine pid
+    }
+-------------------------------------------------------------------------------------
+ Execute-> execvpe(args[0], args, environ);->#define _GNU_SOURCE ->Si vuelve, perror.
+            char *args[]={"ls","-l",NULL};
+           #define _GNU_SOURCE
+
+           ejecutar(char args){
+                args[0]=PROGNAME;
+-------------------------------------------------------------------------------------
+ *****->if((pid=fork())==0){
+            ejecutar(...);
+            exit(0);
+        }else{ //original
+            waitpid(pid,NULL,0); // 1er plano
+        }
+        Probar-> xclock, xterm.
+-------------------------------------------------------------------------------------
+ listjobs-> int status;
+ deljobs    waitpid(int pid, int &status, flag X); WNOHAND   -> No bloqueo
+ job                                               WUNTRACED -> Informar stops
+                                                   WCONTINUED-> Cuando reanuda
+            if(WIFEXITED(status)){
+                //Terminó normal
+                WEXITEDSTATUS(status);
+            }else if(WIFSIGNALED(status)){ //Muerto por señal
+                int sig=WTERMSIG(status);
+
+Kill -term pid // kill -stop pid
+Kill -kill pid // kill -cont pid
+*/
+
 #include "p0.h"
 #include "p3.h"
-
-
 
 int BuscarVariable(char *var, char *e[])  /*busca una variable en el entorno que se le pasa como parámetro*/{
     int pos = 0;
     char aux[20];
+
     strcpy(aux, var);
     strcat(aux, "=");
 
@@ -30,6 +77,21 @@ void MuestraEntorno(char **entorno, char *nombre_entorno) {
     }
 }
 
+int CambiarVariable(char * var, char * valor, char *e[]){/*cambia una variable en el entorno que se le pasa como parámetro,lo hace directamente, no usa putenv*/
+    int pos;
+    char *aux;
+
+    if ((pos=BuscarVariable(var,e))==-1)
+        return(-1);
+
+    if ((aux=(char *)malloc(strlen(var)+strlen(valor)+2))==NULL)
+        return -1;
+    strcpy(aux,var);
+    strcat(aux,"=");
+    strcat(aux,valor);
+    e[pos]=aux;
+    return (pos);
+}
 
 int priority(char *tokens[], int tokenNum, Listas L) {
     int prioridad, pid;
@@ -58,7 +120,7 @@ int showvar(char *tokens[], int tokenNum, Listas L) {
     int i;
     if (tokenNum != 0 && tokens[0] != NULL) {
         if ((i = BuscarVariable(tokens[0], __environ)) != -1) {
-            printf(MAGENTA"Con arg3 main %s(%p) @%p\n", __environ[i], __environ[i], &__environ[i]);
+            printf(MAGENTA"Con arg3 main %s(%p) @%p\n", __environ[i], __environ[i],&__environ[i]);
             printf("Con environ %s(%p) @%p\n", __environ[i], __environ[i], &__environ[i]);
             printf("Con getenv %s(%p)\n", getenv(tokens[0]), &__environ[i]);
         } else {
@@ -71,7 +133,24 @@ int showvar(char *tokens[], int tokenNum, Listas L) {
 }
 
 int changevar(char *tokens[], int tokenNum, Listas L) {
-
+    char *aux=malloc(100);
+    if(tokenNum!=1){
+        if(tokenNum==3){
+            if(strcmp(tokens[0],"-a")==0){
+                CambiarVariable(tokens[1],tokens[2],__environ);
+            }else if(strcmp(tokens[0],"-e")==0){
+                CambiarVariable(tokens[1],tokens[2],__environ);
+            }else if(strcmp(tokens[0],"-p")==0){
+                strcpy(aux,tokens[1]);
+                strcat(aux,"=");
+                strcat(aux,tokens[2]);
+                putenv(aux);
+            }
+            printf(MAGENTA"Se ha cambiado la variable de entorno %s\n",tokens[1]);
+        }
+    }else{
+        printf(CYAN"Uso: cambiarvar [-a|-e|-p] var valor\n");
+    }
     return 0;
 }
 
