@@ -4,10 +4,11 @@
 #include "p0.h"
 #include "p3.h"
 
+
+
 int BuscarVariable(char *var, char *e[])  /*busca una variable en el entorno que se le pasa como parámetro*/{
     int pos = 0;
     char aux[20];
-
     strcpy(aux, var);
     strcat(aux, "=");
 
@@ -57,7 +58,7 @@ int showvar(char *tokens[], int tokenNum, Listas L) {
     int i;
     if (tokenNum != 0 && tokens[0] != NULL) {
         if ((i = BuscarVariable(tokens[0], __environ)) != -1) {
-            printf(MAGENTA"Con arg3 main %s(%p) @%p\n", __environ[i], __environ[i],&__environ[i]);
+            printf(MAGENTA"Con arg3 main %s(%p) @%p\n", __environ[i], __environ[i], &__environ[i]);
             printf("Con environ %s(%p) @%p\n", __environ[i], __environ[i], &__environ[i]);
             printf("Con getenv %s(%p)\n", getenv(tokens[0]), &__environ[i]);
         } else {
@@ -76,23 +77,22 @@ int changevar(char *tokens[], int tokenNum, Listas L) {
 
 int showenv(char *tokens[], int tokenNum, Listas L) {
 
-    if(tokenNum == 0){
+    if (tokenNum == 1) {
 
         MuestraEntorno(__environ, "main");
 
-    }if (tokenNum > 0){
+    } else if (tokenNum > 0) {
 
-        if(strcmp(tokens[0],"-addr") == 0){
+        if (strcmp(tokens[0], "-addr") == 0) {
 
-            printf("environ:   %p (almacenado en %p)",__environ,&__environ);
-            printf("main arg3: %p (almacenado en %p)",args[2],&args[2]);
+            printf("environ:   %p (almacenado en %p)\n", __environ, &__environ);
+            printf("main arg3: %p (almacenado en %p)\n", L->env, &L->env);
 
-        }
-        else  if(strcmp(tokens[0],"-environ") == 0){
+        } else if (strcmp(tokens[0], "-environ") == 0) {
+            MuestraEntorno(__environ, "main");
 
-        }
-        else{
-            printf("Paramtros incorrectos\n");
+        } else {
+            printf("Parametros incorrectos\n");
         }
     }
 
@@ -101,6 +101,14 @@ int showenv(char *tokens[], int tokenNum, Listas L) {
 }
 
 int fork1(char *tokens[], int tokenNum, Listas L) {
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("Error");
+    } else if (pid != 0) {
+        printf("ejecutando proceso %d\n",pid);
+        waitpid(pid, NULL, 0);
+    }
 
     return 0;
 }

@@ -47,6 +47,7 @@ struct structListas{
     tList listHist;
     tList listMem;
     tList listProc;
+    char ** env;
 };
 
 typedef struct structListas *Listas;

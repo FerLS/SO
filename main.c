@@ -85,7 +85,7 @@ void UpdateList(char input[], tList *L) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[],char **env) {
 
     char input[MAX_INPUT_SIZE];
     char *tokens[MAX_TOKENS];
@@ -104,6 +104,7 @@ int main(int argc, char *argv[]) {
     listas->listMem = memList;
     listas->listProc = procList;
 
+    listas->env = env;
     while (1) {
         printf("\033[1;33m");
         printf("> ");
