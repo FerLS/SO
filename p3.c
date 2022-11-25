@@ -277,6 +277,27 @@ int execute(char *tokens[], int tokenNum, Listas L) {
 
 int listjobs(char *tokens[], int tokenNum, Listas L) {
 
+    procData data ;
+
+    tPosL p = first(L->listProc);
+    for (int i = 0; i < sizeList(&L->listProc); ++i) {
+
+        data = (procData) getItem(p, L->listProc);
+
+        struct tm tm = *localtime(&data->data);
+        int signal= 0;
+        char *status = "NULL";
+
+        printf("%d         %s p=%d %d-%02d-%02d %02d:%02d:%02d %s %d %s",data->pid, getenv("LOGNAME"),data->priority, tm.tm_year + 1900,
+               tm.tm_mon + 1,
+               tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,status,signal ,data->commandL);
+
+
+
+
+        p = next(p, L->listProc);
+    }
+
     return 0;
 }
 
@@ -308,7 +329,16 @@ int program(char *tokens[], int tokenNum, Listas L) {
 
 
     data->data = time(NULL);
-    data->commandL = (char *) tokens;
+    char *command = malloc(MAX_INPUT_SIZE * MAX_TOKENS);
+
+    for (int i = 0; i < tokenNum; ++i) {
+
+        strcat(command,tokens[i]);
+        strcat(command," ");
+
+    }
+    data->commandL = command;
+
     data->pid = pid;
     data->priority = getpriority(pid,PRIO_PROCESS);
 
