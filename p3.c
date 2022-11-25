@@ -299,9 +299,22 @@ int program(char *tokens[], int tokenNum, Listas L) {
         execute(tokens, tokenNum, L);
         exit(0);
     } else {
-        waitpid(pid, NULL, 0);
+        waitpid(pid, NULL, 0);  //PRIMER PLANO
 
     }
 
+    //SEGUNDO PLANO(se supone que solo mete los de segundo plano)
+    procData data = malloc(sizeof(struct structProcData));
+
+
+    data->data = time(NULL);
+    data->commandL = (char *) tokens;
+    data->pid = pid;
+    data->priority = getpriority(pid,PRIO_PROCESS);
+
+    insertItem(data, NULL, &L->listProc);
+
     return 0;
+
+
 }
