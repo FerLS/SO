@@ -286,9 +286,11 @@ int listjobs(char *tokens[], int tokenNum, Listas L) {
 
         struct tm tm = *localtime(&data->data);
         int signal= 0;
+
+
         char *status = "NULL";
 
-        printf("%d         %s p=%d %d-%02d-%02d %02d:%02d:%02d %s %d %s",data->pid, getenv("LOGNAME"),data->priority, tm.tm_year + 1900,
+        printf("%d         %s p=%d %d-%02d-%02d %02d:%02d:%02d %s %d %s\n",data->pid, getenv("LOGNAME"),data->priority, tm.tm_year + 1900,
                tm.tm_mon + 1,
                tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,status,signal ,data->commandL);
 
@@ -316,14 +318,29 @@ int program(char *tokens[], int tokenNum, Listas L) {
 
 
     pid_t pid;
+    bool secondPlan;
+    tokenNum = tokenNum < 0 ? 0 : tokenNum;
+    if(tokenNum > 1){
+        secondPlan = strcmp(tokens[tokenNum-1],"&") == 0;
+        if(secondPlan){
+            tokens[tokenNum-1] =  0;
+            tokenNum--;
+        }
+
+    }else{
+        secondPlan = false;
+    }
+
+
+
     if ((pid = fork()) == 0) {
         execute(tokens, tokenNum, L);
         exit(0);
-    } else {
+    } else if(!secondPlan){
         waitpid(pid, NULL, 0);  //PRIMER PLANO
-
     }
 
+    if(!secondPlan) return 0;
     //SEGUNDO PLANO(se supone que solo mete los de segundo plano)
     procData data = malloc(sizeof(struct structProcData));
 
