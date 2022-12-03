@@ -268,6 +268,7 @@ int fork1(char *tokens[], int tokenNum, Listas L) {
     return 0;
 }
 
+
 int execute(char *tokens[], int tokenNum, Listas L) {
 
     execvpe(tokens[0], tokens, environ);
@@ -284,18 +285,27 @@ int listjobs(char *tokens[], int tokenNum, Listas L) {
 
         data = (procData) getItem(p, L->listProc);
 
-        struct tm tm = *localtime(&data->data);
+        struct tm tm = *localtime(&data->time);
         int signal= 0;
+        int status;
 
+        if (waitpid(data->pid,&status, WNOHANG |WUNTRACED |WCONTINUED) == data->pid){
+            if(WIFEXITED(data->out)){
+                strcpy(data->estado, "FINISHED");
+                data->out = WEXITSTATUS(data->out);
+            }else if(WIFSIGNALED(data->out)){
+                strcpy(data->estado, "SIGNALED");
+                data->out = WTERMSIG(data->out);
+            }else if(WIFSTOPPED(data->out)){
+                strcpy(data->estado, "STOPPED");
+                data->out = WTERMSIG(data->out);
+            }else if(WIFCONTINUED(data->out))
+                strcpy(data->estado, "ACTIVE");
+        }
 
-        char *status = "NULL";
-
-        printf("%d         %s p=%d %d-%02d-%02d %02d:%02d:%02d %s %d %s\n",data->pid, getenv("LOGNAME"),data->priority, tm.tm_year + 1900,
+        printf(CYAN"%d         %s p=%d %d-%02d-%02d %02d:%02d:%02d %s (%d) %s\n",data->pid, getenv("LOGNAME"),data->priority, tm.tm_year + 1900,
                tm.tm_mon + 1,
-               tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,status,signal ,data->commandL);
-
-
-
+               tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,data->estado,signal ,data->commandL);
 
         p = next(p, L->listProc);
     }
@@ -345,7 +355,7 @@ int program(char *tokens[], int tokenNum, Listas L) {
     procData data = malloc(sizeof(struct structProcData));
 
 
-    data->data = time(NULL);
+    data->time = time(NULL);
     char *command = malloc(MAX_INPUT_SIZE * MAX_TOKENS);
 
     for (int i = 0; i < tokenNum; ++i) {
@@ -357,8 +367,8 @@ int program(char *tokens[], int tokenNum, Listas L) {
     data->commandL = command;
 
     data->pid = pid;
-    data->priority = getpriority(pid,PRIO_PROCESS);
-
+    data->priority = setpriority(PRIO_PROCESS,pid,0);
+    strcpy(data->estado,"ACTIVE");
     insertItem(data, NULL, &L->listProc);
 
     return 0;

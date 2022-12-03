@@ -20,14 +20,25 @@ struct structMemData{
     char* fichero;
     key_t key;
 };
+
+enum Status{
+    FINISHED,
+    STOPPED,
+    SIGNALED,
+    ACTIVE,
+};
+
 struct structProcData{
 
     int pid;
-    time_t data;
     int priority;
-    char* commandL;
-
+    char *commandL;
+    time_t time;
+    char estado[100];
+    int out;
 };
+
+
 
 typedef struct struchistData *histData;
 typedef struct structMemData *memData;

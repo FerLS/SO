@@ -106,9 +106,9 @@ int main(int argc, char *argv[],char **env) {
 
     listas->env = env;
     while (1) {
-        printf("\033[1;33m");
-        printf("> ");
-        printf(" \033[0;37m");
+
+        printf(YELLOW"> "RESET);
+
 
         fgets(input, MAX_INPUT_SIZE, stdin);
 

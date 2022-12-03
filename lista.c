@@ -159,3 +159,7 @@ int sizeList(tList *L) {
     return size;
 
 }
+
+int end(tList l, tPosL p) {
+    return (p==NULL);
+}

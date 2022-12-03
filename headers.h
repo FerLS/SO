@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include<unistd.h>
+#include <unistd.h>
 #include <errno.h>
 #include <time.h>
 #include <sys/utsname.h>
@@ -25,13 +25,13 @@
 #include <sys/resource.h>
 #endif //PRACTICA1_HEADERS_H
 
+#define RESET   "\x1b[0m"
 #define RED     "\x1b[31m"
 #define GREEN   "\x1b[32m"
 #define YELLOW  "\x1b[33m"
 #define BLUE    "\x1b[34m"
 #define MAGENTA "\x1b[35m"
 #define CYAN    "\x1b[36m"
-#define RESET   "\x1b[0m"
 #define MAX_INPUT_SIZE 1024
 #define MAX_TOKENS 64
 
