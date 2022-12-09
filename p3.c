@@ -313,19 +313,75 @@ int listjobs(char *tokens[], int tokenNum, Listas L) {
     return 0;
 }
 
+
 int deljobs(char *tokens[], int tokenNum, Listas L) {
 
+    int term,sig;
+    procData data;
+
+    for(int i=0;i<tokenNum;i++){
+        if(strcmp(tokens[i],"-term")==0){
+            term=1;
+        }
+        if(strcmp(tokens[i],"-sig")==0){
+            sig=1;
+        }
+    }
+
+    tPosL p = first(L->listProc);
+    for(int i = 0; i < sizeList(&L->listProc); ++i){
+        data = (procData) getItem(p, L->listProc);
+        if(term && WIFEXITED(data->out)){
+            deleteAtPosition(p,&L->listProc);
+        }
+        if(sig && WIFSIGNALED(data->out)){
+            deleteAtPosition(p,&L->listProc);
+        }
+        p= next(p,L->listProc);
+    }
+
+    listjobs(tokens,tokenNum,L);
     return 0;
 }
 
 int job(char *tokens[], int tokenNum, Listas L) {
+    procData data;
+    int signal=0;
+
+    if(tokenNum!=1){
+        tPosL p= first(L->listProc);
+
+        for(int i=0; i< sizeList(&L->listProc);i++){
+            data= (procData) getItem(p,L->listProc);
+            struct tm tm = *localtime(&data->time);
+
+            if(strcmp(tokens[0],"-fg")==0){
+                if(data->pid==atoi(tokens[1])){
+                    waitpid(data->pid,NULL,0);
+                }
+                if(strcmp(data->estado,"ACTIVE")==0){
+                    printf(BLUE"Proceso %d terminado normalmente. Valor devuelto %d\n"
+                            ,data->pid,data->out);
+                }else{
+                    printf(RED"Proceso %d pid ya esta finalizado\n",data->pid);
+                    deleteAtPosition(p,&L->listProc);
+                }
+            }else{
+                printf(CYAN"%d         %s p=%d %d-%02d-%02d %02d:%02d:%02d %s (%d) %s\n",data->pid, getenv("LOGNAME"),data->priority, tm.tm_year + 1900,
+                       tm.tm_mon + 1,
+                       tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,data->estado,signal ,data->commandL);
+            }
+            p= next(p,L->listProc);
+        }
 
 
+    }else{
+        listjobs(tokens,tokenNum,L);
+    }
     return 0;
 }
 
 int program(char *tokens[], int tokenNum, Listas L) {
-
 
     pid_t pid;
     bool secondPlan;
@@ -340,8 +396,6 @@ int program(char *tokens[], int tokenNum, Listas L) {
     }else{
         secondPlan = false;
     }
-
-
 
     if ((pid = fork()) == 0) {
         execute(tokens, tokenNum, L);

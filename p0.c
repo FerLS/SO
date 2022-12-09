@@ -272,7 +272,7 @@ int ayuda(char *tokens[], int tokenNum, Listas L) {
         }else if(strcmp(tokens[0],"deljobs")==0){
             printf("deljobs [-term][-sig]\tElimina los procesos de la lista procesos en sp\n"
                    "\t-term: los terminados\n"
-                   "\t-sig: los terminados por senal");
+                   "\t-sig: los terminados por senal\n");
         }else if(strcmp(tokens[0],"job")==0){
             printf("job [-fg] pid\tMuestra informacion del proceso pid.\n"
                    "\t-fg: lo pasa a primer plano");
