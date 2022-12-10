@@ -109,8 +109,9 @@ bool createNode(tPosL *p) {
     return *p != LNULL;
 }
 
-void deleteAtPosition(tPosL p, tList *L) {
+tPosL deleteAtPosition(tPosL p, tList *L) {
 
+    free(getItem(p, *L));
     if (p == *L) {
 
         *L = p->next;
@@ -121,12 +122,13 @@ void deleteAtPosition(tPosL p, tList *L) {
         tPosL q;
         q = p->next;
         p->data = q->data;
+
         p->next = q->next;
         p = q;
     }
-    free(getItem(p, *L));
+    tPosL k = p->next;
     free(p);
-
+    return k;
 }
 
 void deleteList(tList *L) {

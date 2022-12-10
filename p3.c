@@ -1,6 +1,83 @@
 //Fernando Alvarez Legisima fernando.alvarezr@udc.es
 //Brais Sanchez Ferreiro brais.sferreiro@udc.es
+#include "p0.h"
+#include "p3.h"
 
+struct SEN {
+    char *nombre;
+    int senal;
+
+};
+static struct SEN sigstrnum[] = {
+        {"HUP", SIGHUP},
+        {"INT", SIGINT},
+        {"QUIT", SIGQUIT},
+        {"ILL", SIGILL},
+        {"TRAP", SIGTRAP},
+        {"ABRT", SIGABRT},
+        {"IOT", SIGIOT},
+        {"BUS", SIGBUS},
+        {"FPE", SIGFPE},
+        {"KILL", SIGKILL},
+        {"USR1", SIGUSR1},
+        {"SEGV", SIGSEGV},
+        {"USR2", SIGUSR2},
+        {"PIPE", SIGPIPE},
+        {"ALRM", SIGALRM},
+        {"TERM", SIGTERM},
+        {"CHLD", SIGCHLD},
+        {"CONT", SIGCONT},
+        {"STOP", SIGSTOP},
+        {"TSTP", SIGTSTP},
+        {"TTIN", SIGTTIN},
+        {"TTOU", SIGTTOU},
+        {"URG", SIGURG},
+        {"XCPU", SIGXCPU},
+        {"XFSZ", SIGXFSZ},
+        {"VTALRM", SIGVTALRM},
+        {"PROF", SIGPROF},
+        {"WINCH", SIGWINCH},
+        {"IO", SIGIO},
+        {"SYS", SIGSYS},
+/*senales que no hay en todas partes*/
+#ifdef SIGPOLL
+        {"POLL", SIGPOLL},
+#endif
+#ifdef SIGPWR
+        {"PWR", SIGPWR},
+#endif
+#ifdef SIGEMT
+        {"EMT", SIGEMT},
+#endif
+#ifdef SIGINFO
+        {"INFO", SIGINFO},
+#endif
+#ifdef SIGSTKFLT
+        {"STKFLT", SIGSTKFLT},
+#endif
+#ifdef SIGCLD
+        {"CLD", SIGCLD},
+#endif
+#ifdef SIGLOST
+        {"LOST", SIGLOST},
+#endif
+#ifdef SIGCANCEL
+        {"CANCEL", SIGCANCEL},
+#endif
+#ifdef SIGTHAW
+        {"THAW", SIGTHAW},
+#endif
+#ifdef SIGFREEZE
+        {"FREEZE", SIGFREEZE},
+#endif
+#ifdef SIGLWP
+        {"LWP", SIGLWP},
+#endif
+#ifdef SIGWAITING
+        {"WAITING", SIGWAITING},
+#endif
+        {NULL, -1},
+};    /*fin array sigstrnum */
 /*
 Priority-> getpriority(flag PRIO_PROCESS, int pid);
            setpriority(flag PRIO_PROCESS, int pid, int prioridad); Nice->(-19,19)
@@ -124,8 +201,32 @@ Kill -kill pid // kill -cont pid
  * */
 
 
-#include "p0.h"
-#include "p3.h"
+
+
+
+bool comp_pid(void *data, void *extra) {
+
+    return (size_t) extra ==  (size_t) ((procData) data)->pid;
+}
+
+int ValorSenal(char *sen)  /*devuelve el numero de senial a partir del nombre*/
+{
+    int i;
+    for (i = 0; sigstrnum[i].nombre != NULL; i++)
+        if (!strcmp(sen, sigstrnum[i].nombre))
+            return sigstrnum[i].senal;
+    return -1;
+}
+
+
+char *NombreSenal(int sen)  /*devuelve el nombre senal a partir de la senal*/
+{            /* para sitios donde no hay sig2str*/
+    int i;
+    for (i = 0; sigstrnum[i].nombre != NULL; i++)
+        if (sen == sigstrnum[i].senal)
+            return sigstrnum[i].nombre;
+    return ("SIGUNKNOWN");
+}
 
 int BuscarVariable(char *var, char *e[])  /*busca una variable en el entorno que se le pasa como parámetro*/{
     int pos = 0;
@@ -197,10 +298,10 @@ int showvar(char *tokens[], int tokenNum, Listas L) {
     if (tokenNum != 0 && tokens[0] != NULL) {
         if ((i = BuscarVariable(tokens[0], __environ)) != -1) {
             printf(MAGENTA"Con arg3 main %s(%p) @%p\n", __environ[i], __environ[i], &__environ[i]);
-            printf("Con environ %s(%p) @%p\n", __environ[i], __environ[i], &__environ[i]);
-            printf("Con getenv %s(%p)\n", getenv(tokens[0]), &__environ[i]);
+            printf(MAGENTA"Con environ %s(%p) @%p\n", __environ[i], __environ[i], &__environ[i]);
+            printf(MAGENTA"Con getenv %s(%p)\n", getenv(tokens[0]), &__environ[i]);
         } else {
-            perror("Error");
+            perror(RED"Error");
         }
     } else {
         MuestraEntorno(__environ, "main");
@@ -211,22 +312,25 @@ int showvar(char *tokens[], int tokenNum, Listas L) {
 int changevar(char *tokens[], int tokenNum, Listas L) {
     char *aux = malloc(100);
     if (tokenNum != 1) {
-        if (tokenNum == 3) {
+        if (tokenNum == 4) {
             if (strcmp(tokens[0], "-a") == 0) {
-                CambiarVariable(tokens[1], tokens[2], __environ);
+                CambiarVariable(tokens[1], tokens[2], L->env);
+                printf(MAGENTA"Se ha cambiado la variable de entorno %s\n", tokens[1]);
             } else if (strcmp(tokens[0], "-e") == 0) {
                 CambiarVariable(tokens[1], tokens[2], __environ);
+                printf(MAGENTA"Se ha cambiado la variable de entorno %s\n", tokens[1]);
             } else if (strcmp(tokens[0], "-p") == 0) {
                 strcpy(aux, tokens[1]);
                 strcat(aux, "=");
                 strcat(aux, tokens[2]);
                 putenv(aux);
+                printf(MAGENTA"Se ha creado la variable de entorno %s\n",tokens[1]);
             }
-            printf(MAGENTA"Se ha cambiado la variable de entorno %s\n", tokens[1]);
         }
     } else {
         printf(CYAN"Uso: cambiarvar [-a|-e|-p] var valor\n");
     }
+    free(aux);
     return 0;
 }
 
@@ -278,7 +382,7 @@ int execute(char *tokens[], int tokenNum, Listas L) {
 
 int listjobs(char *tokens[], int tokenNum, Listas L) {
 
-    procData data ;
+    procData data;
 
     tPosL p = first(L->listProc);
     for (int i = 0; i < sizeList(&L->listProc); ++i) {
@@ -286,26 +390,34 @@ int listjobs(char *tokens[], int tokenNum, Listas L) {
         data = (procData) getItem(p, L->listProc);
 
         struct tm tm = *localtime(&data->time);
-        int signal= 0;
         int status;
 
-        if (waitpid(data->pid,&status, WNOHANG |WUNTRACED |WCONTINUED) == data->pid){
-            if(WIFEXITED(data->out)){
+        if (waitpid(data->pid, &status, WNOHANG | WUNTRACED | WCONTINUED) == data->pid) {
+            if (WIFEXITED(status)) {
                 strcpy(data->estado, "FINISHED");
-                data->out = WEXITSTATUS(data->out);
-            }else if(WIFSIGNALED(data->out)){
+                data->out = WEXITSTATUS(status);
+
+            } else if (WIFSIGNALED(status)) {
                 strcpy(data->estado, "SIGNALED");
-                data->out = WTERMSIG(data->out);
-            }else if(WIFSTOPPED(data->out)){
+                data->out = WTERMSIG(status);
+                data->signal = NombreSenal(  data->out);
+
+            } else if (WIFSTOPPED(status)) {
                 strcpy(data->estado, "STOPPED");
-                data->out = WTERMSIG(data->out);
-            }else if(WIFCONTINUED(data->out))
+                data->out = WSTOPSIG(status);
+            } else if (WIFCONTINUED(status)) {
                 strcpy(data->estado, "ACTIVE");
+                data->signal = "000";
+            }
         }
 
-        printf(CYAN"%d         %s p=%d %d-%02d-%02d %02d:%02d:%02d %s (%d) %s\n",data->pid, getenv("LOGNAME"),data->priority, tm.tm_year + 1900,
-               tm.tm_mon + 1,
-               tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,data->estado,signal ,data->commandL);
+        if (tokenNum > 0) {
+            printf(CYAN"%d         %s p=%d %d-%02d-%02d %02d:%02d:%02d %s (%s) %s\n", data->pid, getenv("LOGNAME"),
+                   data->priority, tm.tm_year + 1900,
+                   tm.tm_mon + 1,
+                   tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->estado, data->signal, data->commandL);
+        }
+
 
         p = next(p, L->listProc);
     }
@@ -315,12 +427,94 @@ int listjobs(char *tokens[], int tokenNum, Listas L) {
 
 int deljobs(char *tokens[], int tokenNum, Listas L) {
 
+    bool term, sig;
+    if (tokenNum == 1) {
+
+        listjobs(tokens, tokenNum, L);
+
+    } else {
+
+        sig = strcmp(tokens[0], "-sig") == 0;
+        term = strcmp(tokens[0], "-term") == 0;
+        procData data;
+
+        if (!term && !sig) {
+
+            printf("Parametros Invalidos\n");
+            return 0;
+        }
+        tPosL p = first(L->listProc);
+        for (int i = 0; i < sizeList(&L->listProc); ++i) {
+
+            data = (procData) getItem(p, L->listProc);
+
+            listjobs(tokens, -1, L);
+            if ((strcmp("FINISHED", data->estado) == 0 && term) || (strcmp("SIGNALED", data->estado) == 0 && sig)) {
+                free(data->commandL);
+                p = deleteAtPosition(p, &L->listProc);
+
+            } else {
+                p = next(p, L->listProc);
+
+            }
+
+        }
+        listjobs(tokens, tokenNum, L);
+
+    }
     return 0;
 }
 
 int job(char *tokens[], int tokenNum, Listas L) {
 
 
+    if (tokenNum > 1) {
+        procData data;
+        tPosL p;
+
+        if (tokenNum == 3 && strcmp("-fg", tokens[0]) == 0 && (atoi(tokens[1]))> 0) {
+
+
+            p = findItem(L->listProc, comp_pid, (void *)(size_t) atoi(tokens[1]));
+            if (p == LNULL){
+                printf("Proceso no encontrado\n");
+                return 0;
+            }
+            data = (procData) getItem(p,L->listProc);
+            waitpid(data->pid, NULL, 0);
+            if (strcmp(data->estado, "ACTIVE") == 0) {
+                printf(BLUE"Proceso %d terminado normalmente. Valor devuelto %d\n", data->pid, data->out);
+            } else {
+                printf(RED"Proceso %d pid ya esta finalizado\n", data->pid);
+            }
+            free(data->commandL);
+            deleteAtPosition(p, &L->listProc);
+
+        } else if(tokenNum == 2 && (atoi(tokens[0])) > 0){
+
+            p = findItem(L->listProc, comp_pid, (void *)(size_t) atoi(tokens[0]));
+            if (p == LNULL){
+                printf("Proceso no encontrado\n");
+                return 0;
+            }
+            data = (procData) getItem(p,L->listProc);
+            listjobs(tokens,-1,L);
+            struct tm tm = *localtime(&data->time);
+
+
+            printf(CYAN"%d         %s p=%d %d-%02d-%02d %02d:%02d:%02d %s (%s) %s\n", data->pid, getenv("LOGNAME"),
+                   data->priority, tm.tm_year + 1900,
+                   tm.tm_mon + 1,
+                   tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->estado, data->signal, data->commandL);
+
+        }
+        else{
+
+            printf("Parametros invalidos");
+        }
+    } else {
+        listjobs(tokens, tokenNum, L);
+    }
     return 0;
 }
 
@@ -330,27 +524,26 @@ int program(char *tokens[], int tokenNum, Listas L) {
     pid_t pid;
     bool secondPlan;
     tokenNum = tokenNum < 0 ? 0 : tokenNum;
-    if(tokenNum > 1){
-        secondPlan = strcmp(tokens[tokenNum-1],"&") == 0;
-        if(secondPlan){
-            tokens[tokenNum-1] =  0;
+    if (tokenNum > 1) {
+        secondPlan = strcmp(tokens[tokenNum - 1], "&") == 0;
+        if (secondPlan) {
+            tokens[tokenNum - 1] = 0;
             tokenNum--;
         }
 
-    }else{
+    } else {
         secondPlan = false;
     }
-
 
 
     if ((pid = fork()) == 0) {
         execute(tokens, tokenNum, L);
         exit(0);
-    } else if(!secondPlan){
+    } else if (!secondPlan) {
         waitpid(pid, NULL, 0);  //PRIMER PLANO
     }
 
-    if(!secondPlan) return 0;
+    if (!secondPlan) return 0;
     //SEGUNDO PLANO(se supone que solo mete los de segundo plano)
     procData data = malloc(sizeof(struct structProcData));
 
@@ -358,20 +551,39 @@ int program(char *tokens[], int tokenNum, Listas L) {
     data->time = time(NULL);
     char *command = malloc(MAX_INPUT_SIZE * MAX_TOKENS);
 
-    for (int i = 0; i < tokenNum; ++i) {
+    strcpy(command, tokens[0]);
+    for (int i = 1; i < tokenNum; ++i) {
 
-        strcat(command,tokens[i]);
-        strcat(command," ");
+        strcat(command, tokens[i]);
+        strcat(command, " ");
 
     }
     data->commandL = command;
 
     data->pid = pid;
-    data->priority = setpriority(PRIO_PROCESS,pid,0);
-    strcpy(data->estado,"ACTIVE");
+    data->signal = "000";
+    data->priority = setpriority(PRIO_PROCESS, pid, 0);
+    strcpy(data->estado, "ACTIVE");
+    data->out = 0;
+
     insertItem(data, NULL, &L->listProc);
 
+
     return 0;
+
+
+}
+void FreeListProc(tList *L) {
+
+    tPosL p = first(*L);
+
+    for (int i = 0; i < sizeList(L); ++i) {
+
+        free(((procData) getItem(p,*L))->commandL);
+        p = next(p, *L);
+    }
+
+    deleteList(L);
 
 
 }

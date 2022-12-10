@@ -26,7 +26,7 @@ int job(char *tokens[], int tokenNum, Listas L);
 
 int program(char *tokens[], int tokenNum, Listas L);
 
-
+void FreeListProc(tList *L);
 
 
 #endif //PRACTICA1_P3_H

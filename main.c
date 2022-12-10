@@ -131,8 +131,8 @@ int main(int argc, char *argv[],char **env) {
     }
 
     deleteList(&listas->listHist);
-    deleteList(&listas->listProc);
     FreeListMem(&listas->listMem);
+    FreeListProc(&listas->listProc);
     free(listas);
     printf("Bye\n");
 }

@@ -28,13 +28,14 @@ enum Status{
     ACTIVE,
 };
 
-struct structProcData{
+ struct structProcData{
 
     int pid;
     int priority;
     char *commandL;
     time_t time;
     char estado[100];
+    char* signal;
     int out;
 };
 
@@ -86,7 +87,7 @@ bool insertItem(tItemL d, tPosL p, tList *L);
 
 bool createNode(tPosL *p);
 
-void deleteAtPosition(tPosL p, tList *L);
+tPosL deleteAtPosition(tPosL p, tList *L);
 
 void deleteList(tList *L);
 
