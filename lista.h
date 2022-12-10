@@ -93,4 +93,6 @@ void deleteList(tList *L);
 
 int sizeList(tList *L);
 
+int end(tList L, tPosL p);
+
 #endif //PRACTICA1_LISTA_H

@@ -53,6 +53,10 @@ tPosL last(tList L) {
 
 }
 
+int end(tList L, tPosL p) { // estoy en el final
+    return (p==NULL);
+}
+
 tPosL findItem(tList L, bool (*prop)(void *elem, void *), void *extra) {
 
     tPosL p;
@@ -160,8 +164,4 @@ int sizeList(tList *L) {
     }
     return size;
 
-}
-
-int end(tList l, tPosL p) {
-    return (p==NULL);
 }
