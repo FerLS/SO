@@ -14,7 +14,7 @@ int changevar(char *tokens[], int tokenNum, Listas L);
 
 int showenv(char *tokens[], int tokenNum, Listas L);
 
-int fork1(char *tokens[], int tokenNum, Listas L);
+int Ourfork(char *tokens[], int tokenNum, Listas L);
 
 int execute(char *tokens[], int tokenNum, Listas L);
 

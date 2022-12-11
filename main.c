@@ -47,7 +47,7 @@ struct cmd {
         {"showvar",    showvar},
         {"changevar",  changevar},
         {"showenv",    showenv},
-        {"fork",       fork1},
+        {"fork",       Ourfork},
         {"execute",    execute},
         {"listjobs",   listjobs},
         {"deljobs",    deljobs},
@@ -85,7 +85,7 @@ void UpdateList(char input[], tList *L) {
     }
 }
 
-int main(int argc, char *argv[],char **env) {
+int main(int argc, char *argv[],char *env[]) {
 
     char input[MAX_INPUT_SIZE];
     char *tokens[MAX_TOKENS];
@@ -109,7 +109,6 @@ int main(int argc, char *argv[],char **env) {
 
         printf(YELLOW"> "RESET);
 
-
         fgets(input, MAX_INPUT_SIZE, stdin);
 
         if (input[0] != ' ' && input[0] != '\n') {
@@ -125,11 +124,8 @@ int main(int argc, char *argv[],char **env) {
             }
         } else {
             printf("Comando no valido\n");
-
         }
-
     }
-
     deleteList(&listas->listHist);
     FreeListMem(&listas->listMem);
     FreeListProc(&listas->listProc);
