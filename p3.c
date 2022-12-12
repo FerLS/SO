@@ -303,7 +303,7 @@ int deljobs(char *tokens[], int tokenNum, Listas L) {
                     p = next(p, L->listProc);
                 }
             }
-        } while (!end(L->listProc,p));
+        }while (false);
         listjobs(tokens, tokenNum, L);
     }
     return 0;
@@ -349,9 +349,20 @@ int job(char *tokens[], int tokenNum, Listas L) {
     return 0;
 }
 
+bool isNumber(char * string){
+    for(int i = 0; i < strlen( string ); i ++){
+        if (string[i] < 48 || string[i] > 57 ){
+            if (string[i] != 45){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 int program(char *tokens[], int tokenNum, Listas L) {
     pid_t pid;
-    bool secondPlan,prios;
+    bool secondPlan,prios=false;
     tokenNum = tokenNum < 0 ? 0 : tokenNum;
     if (tokenNum > 1) {
         secondPlan = strcmp(tokens[tokenNum - 1], "&") == 0;
@@ -363,14 +374,17 @@ int program(char *tokens[], int tokenNum, Listas L) {
         secondPlan = false;
     }
 
-    int prio=atoi(strtok(tokens[tokenNum-1],"@"));
-    if(prio>-1 && prio<20){
-        prios=true;
-        tokens[tokenNum - 1] = 0;
-        tokenNum--;
-    }else{
-        printf(RED"No se puede poner la prioridad con valor %d\n",prio);
-        prios=false;
+    int prio;
+    if(isNumber(strtok(tokens[tokenNum-1],"@"))){
+        prio=atoi(strtok(tokens[tokenNum-1],"@"));
+        if(prio>-1 && prio<20){
+            prios=true;
+            tokens[tokenNum - 1] = 0;
+            tokenNum--;
+        }else{
+            printf(RED"No se puede poner la prioridad con valor %d\n",prio);
+            prios=false;
+        }
     }
 
     if ((pid = fork()) == 0) {
