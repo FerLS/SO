@@ -28,5 +28,6 @@ int program(char *tokens[], int tokenNum, Listas L);
 
 void FreeListProc(tList *L);
 
+bool isNumber(char *string);
 
 #endif //PRACTICA1_P3_H

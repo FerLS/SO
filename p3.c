@@ -132,6 +132,7 @@ int CambiarVariable(char * var, char * valor, char *e[]) /*cambia una variable e
 
     if ((aux=(char *)malloc(strlen(var)+strlen(valor)+2))==NULL)
         return -1;
+
     strcpy(aux,var);
     strcat(aux,"=");
     strcat(aux,valor);
@@ -146,6 +147,17 @@ void MuestraEntorno(char **entorno, char *nombre_entorno) {
                nombre_entorno, i, entorno[i], entorno[i]);
         i++;
     }
+}
+
+bool isNumber(char * string){
+    for(int i = 0; i < strlen( string ); i ++){
+        if (string[i] < 48 || string[i] > 57 ){
+            if (string[i] != 45){
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 int priority(char *tokens[], int tokenNum, Listas L) {
@@ -198,11 +210,13 @@ int changevar(char *tokens[], int tokenNum, Listas L) {
                 CambiarVariable(tokens[1], tokens[2], __environ);
                 printf(MAGENTA"Se ha cambiado la variable de entorno %s\n", tokens[1]);
             } else if (strcmp(tokens[0], "-p") == 0) {
-                strcpy(aux, tokens[1]);
-                strcat(aux, "=");
-                strcat(aux, tokens[2]);
-                putenv(aux);
-                printf(MAGENTA"Se ha creado la variable de entorno %s\n",tokens[1]);
+                if(BuscarVariable(tokens[1],__environ)!=-1) {
+                    setenv(tokens[1],tokens[2],true);
+                    printf(MAGENTA"Se ha cambiado la variable de entorno %s\n",tokens[1]);
+                }else{
+                    setenv(tokens[1],tokens[2],true);
+                    printf(MAGENTA"Se ha creado la variable de entorno %s\n",tokens[1]);
+                }
             }
         }
     } else {
@@ -349,16 +363,6 @@ int job(char *tokens[], int tokenNum, Listas L) {
     return 0;
 }
 
-bool isNumber(char * string){
-    for(int i = 0; i < strlen( string ); i ++){
-        if (string[i] < 48 || string[i] > 57 ){
-            if (string[i] != 45){
-                return false;
-            }
-        }
-    }
-    return true;
-}
 
 int program(char *tokens[], int tokenNum, Listas L) {
     pid_t pid;
