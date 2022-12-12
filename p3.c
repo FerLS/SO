@@ -385,6 +385,11 @@ int program(char *tokens[], int tokenNum, Listas L) {
             prios=true;
             tokens[tokenNum - 1] = 0;
             tokenNum--;
+        }else if(prio>19){
+            prios=true;
+            prio=19;
+            tokens[tokenNum - 1] = 0;
+            tokenNum--;
         }else{
             printf(RED"No se puede poner la prioridad con valor %d\n",prio);
             prios=false;
