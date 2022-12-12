@@ -369,35 +369,30 @@ int job(char *tokens[], int tokenNum, Listas L) {
 
 int program(char *tokens[], int tokenNum, Listas L) {
     pid_t pid;
-    bool secondPlan,prios=false;
+    bool secondPlan;
+    int prio = 0;
     tokenNum = tokenNum < 0 ? 0 : tokenNum;
     if (tokenNum > 1) {
+
+
         secondPlan = strcmp(tokens[tokenNum - 1], "&") == 0;
         if (secondPlan) {
             tokens[tokenNum - 1] = 0;
             tokenNum--;
+            if(tokens[tokenNum-1][0] == '@'){
+                memmove(tokens[tokenNum-1], tokens[tokenNum-1]+1, strlen(tokens[tokenNum-1]));
+
+                prio = atoi(tokens[tokenNum-1]);
+                tokens[tokenNum - 1] = 0;
+                tokenNum--;
+            }
         }
+
     } else {
         secondPlan = false;
     }
 
-    int prio;
-    if(isNumber(strtok(tokens[tokenNum-1],"@"))){
-        prio=atoi(strtok(tokens[tokenNum-1],"@"));
-        if(prio>-1 && prio<20){
-            prios=true;
-            tokens[tokenNum - 1] = 0;
-            tokenNum--;
-        }else if(prio>19){
-            prios=true;
-            prio=19;
-            tokens[tokenNum - 1] = 0;
-            tokenNum--;
-        }else{
-            printf(RED"No se puede poner la prioridad con valor %d\n",prio);
-            prios=false;
-        }
-    }
+
 
     if ((pid = fork()) == 0) {
         execute(tokens, tokenNum, L);
@@ -425,11 +420,8 @@ int program(char *tokens[], int tokenNum, Listas L) {
 
     data->pid = pid;
     data->signal = "000";
-    if (prios) {
-        data->priority = setpriority(PRIO_PROCESS, pid, prio);
-    } else {
-        data->priority = setpriority(PRIO_PROCESS, pid, 0);
-    }
+    data->priority = setpriority(PRIO_PROCESS, pid, prio);
+
     strcpy(data->estado, "ACTIVE");
     data->out = 0;
 
