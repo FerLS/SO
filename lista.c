@@ -116,6 +116,8 @@ bool createNode(tPosL *p) {
 tPosL deleteAtPosition(tPosL p, tList *L) {
 
     free(getItem(p, *L));
+    tPosL k = NULL;
+
     if (p == *L) {
 
         *L = p->next;
@@ -128,9 +130,9 @@ tPosL deleteAtPosition(tPosL p, tList *L) {
         p->data = q->data;
 
         p->next = q->next;
+        k = p;
         p = q;
     }
-    tPosL k = p->next;
     free(p);
     return k;
 }

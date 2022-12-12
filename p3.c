@@ -283,15 +283,18 @@ int listjobs(char *tokens[], int tokenNum, Listas L) {
                 data->signal = "000";
             }
         }
+        data->priority = getpriority(PRIO_PROCESS, data->pid);
+
         if (tokenNum > 0) {
             printf(CYAN"%d         %s p=%d %d-%02d-%02d %02d:%02d:%02d %s (%s) %s\n", data->pid, getenv("LOGNAME"),
-                   getpriority(PRIO_PROCESS,data->pid), tm.tm_year + 1900,tm.tm_mon + 1,
+                   data->priority, tm.tm_year + 1900,tm.tm_mon + 1,
                    tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, data->estado, data->signal, data->commandL);
         }
         p = next(p, L->listProc);
     }
     return 0;
 }
+
 
 int deljobs(char *tokens[], int tokenNum, Listas L) {
     bool term, sig;
@@ -306,18 +309,18 @@ int deljobs(char *tokens[], int tokenNum, Listas L) {
             return 0;
         }
         tPosL p = first(L->listProc);
-        do{
-            for (int i = 0; i < sizeList(&L->listProc); ++i) {
-                data = (procData) getItem(p, L->listProc);
-                listjobs(tokens, -1, L);
-                if ((strcmp("FINISHED", data->estado) == 0 && term) || (strcmp("SIGNALED", data->estado) == 0 && sig)) {
-                    free(data->commandL);
-                    p = deleteAtPosition(p, &L->listProc);
-                } else {
-                    p = next(p, L->listProc);
-                }
+        while (p != NULL){
+
+            data = (procData) getItem(p, L->listProc);
+            listjobs(tokens, -1, L);
+            if ((strcmp("FINISHED", data->estado) == 0 && term) || (strcmp("SIGNALED", data->estado) == 0 && sig)) {
+                free(data->commandL);
+                p = deleteAtPosition(p, &L->listProc);
+                p = previous(p, L->listProc);
+            } else {
+                p = next(p, L->listProc);
             }
-        }while(!end(L->listProc,p));
+        }
         listjobs(tokens, tokenNum, L);
     }
     return 0;
@@ -438,7 +441,7 @@ void FreeListProc(tList *L) {
     tPosL p = first(*L);
     for (int i = 0; i < sizeList(L); ++i) {
 
-        free(((procData) getItem(p,*L))->commandL);
+        free(((procData) getItem(p, *L))->commandL);
         p = next(p, *L);
     }
     deleteList(L);
