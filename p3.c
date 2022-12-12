@@ -292,7 +292,7 @@ int deljobs(char *tokens[], int tokenNum, Listas L) {
             return 0;
         }
         tPosL p = first(L->listProc);
-        do {
+        do{
             for (int i = 0; i < sizeList(&L->listProc); ++i) {
                 data = (procData) getItem(p, L->listProc);
                 listjobs(tokens, -1, L);
@@ -303,7 +303,7 @@ int deljobs(char *tokens[], int tokenNum, Listas L) {
                     p = next(p, L->listProc);
                 }
             }
-        }while (false);
+        }while(!end(L->listProc,p));
         listjobs(tokens, tokenNum, L);
     }
     return 0;
