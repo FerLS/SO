@@ -2,6 +2,7 @@
 //Brais Sanchez Ferreiro brais.sferreiro@udc.es
 #include "p0.h"
 #include "p3.h"
+#include <ctype.h>
 
 struct SEN {
     char *nombre;
@@ -350,7 +351,7 @@ int job(char *tokens[], int tokenNum, Listas L) {
 
 int program(char *tokens[], int tokenNum, Listas L) {
     pid_t pid;
-    bool secondPlan;
+    bool secondPlan,prios;
     tokenNum = tokenNum < 0 ? 0 : tokenNum;
     if (tokenNum > 1) {
         secondPlan = strcmp(tokens[tokenNum - 1], "&") == 0;
@@ -361,6 +362,17 @@ int program(char *tokens[], int tokenNum, Listas L) {
     } else {
         secondPlan = false;
     }
+
+    int prio=atoi(strtok(tokens[tokenNum-1],"@"));
+    if(prio>-1 && prio<20){
+        prios=true;
+        tokens[tokenNum - 1] = 0;
+        tokenNum--;
+    }else{
+        printf(RED"No se puede poner la prioridad con valor %d\n",prio);
+        prios=false;
+    }
+
     if ((pid = fork()) == 0) {
         execute(tokens, tokenNum, L);
         exit(0);
@@ -387,7 +399,11 @@ int program(char *tokens[], int tokenNum, Listas L) {
 
     data->pid = pid;
     data->signal = "000";
-    data->priority = setpriority(PRIO_PROCESS, pid, 0);
+    if (prios) {
+        data->priority = setpriority(PRIO_PROCESS, pid, prio);
+    } else {
+        data->priority = setpriority(PRIO_PROCESS, pid, 0);
+    }
     strcpy(data->estado, "ACTIVE");
     data->out = 0;
 
