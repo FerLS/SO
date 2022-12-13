@@ -250,6 +250,7 @@ int Ourfork(char *tokens[], int tokenNum, Listas L) {
         printf("Ejecutando proceso %d\n", getpid());
     }else{
         waitpid(pid, NULL, 0);
+
     }
     return 0;
 }
@@ -371,6 +372,8 @@ int program(char *tokens[], int tokenNum, Listas L) {
     pid_t pid;
     bool secondPlan;
     int prio = 0;
+    char* env[MAX_TOKENS];
+
     tokenNum = tokenNum < 0 ? 0 : tokenNum;
     if (tokenNum > 1) {
 
@@ -381,7 +384,6 @@ int program(char *tokens[], int tokenNum, Listas L) {
             tokenNum--;
             if(tokens[tokenNum-1][0] == '@'){
                 memmove(tokens[tokenNum-1], tokens[tokenNum-1]+1, strlen(tokens[tokenNum-1]));
-
                 prio = atoi(tokens[tokenNum-1]);
                 tokens[tokenNum - 1] = 0;
                 tokenNum--;
@@ -392,10 +394,32 @@ int program(char *tokens[], int tokenNum, Listas L) {
         secondPlan = false;
     }
 
+    bool hasEnv = false;
+    int j = 0;
+    char * val;
+    for (int i = 0; i < tokenNum; ++i) {
+        val = getenv(tokens[i]);
+        if( val != NULL){
 
+            char * aux = malloc(MAX_INPUT_SIZE);
+            strcpy(aux,tokens[i]);
+            strcat(aux,"=");
+            strcat(aux,val);
+            env[i] = aux;
+            j++;
+            hasEnv= true;
+        }
+        else{
 
+            break;
+        }
+    }
+    env[j] = NULL;
+
+    tokenNum-=j;
+    tokens+= j;
     if ((pid = fork()) == 0) {
-        execute(tokens, tokenNum, L);
+        execvpe(tokens[0],tokens,hasEnv ? env: environ);
         exit(0);
     } else if (!secondPlan) {
         waitpid(pid, NULL, 0);  //PRIMER PLANO
@@ -410,7 +434,9 @@ int program(char *tokens[], int tokenNum, Listas L) {
     char *command = malloc(MAX_INPUT_SIZE * MAX_TOKENS);
 
     strcpy(command, tokens[0]);
-    for (int i = 1; i < tokenNum; ++i) {
+
+
+    for (int i = 1;i < tokenNum; ++i) {
 
         strcat(command, tokens[i]);
         strcat(command, " ");
