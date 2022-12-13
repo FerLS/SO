@@ -401,7 +401,7 @@ int program(char *tokens[], int tokenNum, Listas L) {
         val = getenv(tokens[i]);
         if( val != NULL){
 
-            char * aux = malloc(MAX_INPUT_SIZE);
+            char  aux[MAX_INPUT_SIZE];
             strcpy(aux,tokens[i]);
             strcat(aux,"=");
             strcat(aux,val);
@@ -452,6 +452,10 @@ int program(char *tokens[], int tokenNum, Listas L) {
     data->out = 0;
 
     insertItem(data, NULL, &L->listProc);
+
+
+
+
     return 0;
 }
 
