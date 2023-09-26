@@ -1,5 +1,7 @@
-# Asignatura de Sistemas Operativos - Practicas 
+# Sistemas Operativos - UDC
 
+Asignatura de Sistemas Operativos - Practicas 2023
+___
 ## Notas
 _Practica 1 : 10_
 
